@@ -1,3 +1,13 @@
+:root {
+	/* Default body font — available for any future text blocks */
+	--font-base: "Metamorphous", "Cormorant Garamond", "EB Garamond", Garamond,
+		"Times New Roman", serif;
+
+	/* Main hero / display font */
+	--font-display: "Fleur De Leah", "Metamorphous", "Cormorant Garamond", Garamond,
+		"Times New Roman", cursive, serif;
+}
+
 *,
 *::before,
 *::after {
@@ -11,8 +21,7 @@ body {
 	height: 100%;
 	width: 100%;
 	overflow: hidden;
-	font-family: "Metamorphous", "Cormorant Garamond", "EB Garamond", Garamond,
-		"Times New Roman", serif;
+	font-family: var(--font-base);
 	color: #fff;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -114,6 +123,7 @@ body {
 	display: block;
 	z-index: 1;
 	touch-action: none;
+	cursor: crosshair;
 }
 
 .center {
@@ -129,11 +139,10 @@ body {
 
 .title {
 	margin: 0;
-	font-family: "Metamorphous", "Cormorant Garamond", "EB Garamond", Garamond,
-		"Times New Roman", serif;
+	font-family: var(--font-display);
 	font-size: clamp(2.5rem, 12vw, 9rem);
 	font-weight: 400;
-	letter-spacing: 0.1em;
+	letter-spacing: 0.05em;
 	text-align: center;
 	background: linear-gradient(
 		180deg,
