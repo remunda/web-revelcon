@@ -45,6 +45,96 @@
 	// Pointer state
 	const pointer = { x: 0, y: 0, tx: 0, ty: 0, vx: 0, vy: 0, active: false, lastT: 0 };
 
+	// ---------- Pointer trail ----------
+	// Kouzelná modrá čára za kurzorem / prstem, která se rozplývá od konce.
+	// "Od konce" = od nejstarších bodů — ty mají nejnižší alpha, takže vizuálně
+	// mizí dřív, zatímco bod u aktuální pozice zůstává zářivý.
+	const reduceMotion =
+		typeof window.matchMedia === "function" &&
+		window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	const TRAIL_MAX = reduceMotion ? 0 : 28; // délka stopy (v bodech)
+	const TRAIL_MIN_DIST_SQ = 9; // 3 px — potlačí duplikátní body při stání
+	const trail = []; // pole {x, y}
+	let lastTrailX = 0;
+	let lastTrailY = 0;
+	let trailActive = false; // true, dokud se pointer pohybuje/je přítomen
+
+	function pushTrailPoint(x, y) {
+		if (!trailActive) return;
+		const dx = x - lastTrailX;
+		const dy = y - lastTrailY;
+		if (dx * dx + dy * dy < TRAIL_MIN_DIST_SQ) return;
+		trail.push({ x, y });
+		if (trail.length > TRAIL_MAX) trail.shift();
+		lastTrailX = x;
+		lastTrailY = y;
+	}
+
+	function resetTrail() {
+		trail.length = 0;
+		lastTrailX = 0;
+		lastTrailY = 0;
+	}
+
+	function drawTrail() {
+		if (trail.length < 2) return;
+		const n = trail.length;
+		// Index 0 = nejstarší bod (konec stopy), n-1 = aktuální pozice kurzoru.
+		// Stárím → nižší alpha → rozplývání od konce.
+		ctx.lineCap = "round";
+		ctx.lineJoin = "round";
+
+		// 1) Měkký glow pod hlavní čárou — několik tlustších, průhlednějších průchodů.
+		for (let pass = 3; pass >= 1; pass--) {
+			const widthBase = 14 - pass * 3.5; // 10.5, 7, 3.5
+			const alphaScale = 0.18 / pass; // 0.06, 0.09, 0.18
+			ctx.lineWidth = widthBase;
+			ctx.strokeStyle = "rgba(120, 170, 255, " + alphaScale.toFixed(3) + ")";
+			ctx.beginPath();
+			for (let i = 0; i < n; i++) {
+				const p = trail[i];
+				// alpha roste s indexem: starší body (i malé) jsou průhlednější.
+				const a = (i / (n - 1)) * 0.55 + 0.05;
+				if (a < 0.04) continue;
+				ctx.globalAlpha = Math.min(1, a);
+				if (i === 0) ctx.moveTo(p.x, p.y);
+				else ctx.lineTo(p.x, p.y);
+			}
+			ctx.stroke();
+		}
+
+		// 2) Hlavní jasné jádro — modrá s bílým nádechem u špičky.
+		ctx.globalAlpha = 1;
+		ctx.lineWidth = 2.2;
+		const grad = ctx.createLinearGradient(
+			trail[0].x,
+			trail[0].y,
+			trail[n - 1].x,
+			trail[n - 1].y
+		);
+		grad.addColorStop(0, "rgba(80, 140, 255, 0)");
+		grad.addColorStop(0.55, "rgba(140, 190, 255, 0.85)");
+		grad.addColorStop(1, "rgba(220, 235, 255, 1)");
+		ctx.strokeStyle = grad;
+		ctx.beginPath();
+		ctx.moveTo(trail[0].x, trail[0].y);
+		for (let i = 1; i < n; i++) ctx.lineTo(trail[i].x, trail[i].y);
+		ctx.stroke();
+
+		// 3) Jiskřička na špičce u aktuálního bodu.
+		const head = trail[n - 1];
+		ctx.fillStyle = "rgba(230, 240, 255, 0.95)";
+		ctx.beginPath();
+		ctx.arc(head.x, head.y, 3, 0, Math.PI * 2);
+		ctx.fill();
+		ctx.fillStyle = "rgba(140, 190, 255, 0.45)";
+		ctx.beginPath();
+		ctx.arc(head.x, head.y, 8, 0, Math.PI * 2);
+		ctx.fill();
+
+		ctx.globalAlpha = 1;
+	}
+
 	function rand(min, max) {
 		return Math.random() * (max - min) + min;
 	}
@@ -125,6 +215,8 @@
 		pointer.tx = (clientX / width) * 2 - 1;
 		pointer.ty = (clientY / height) * 2 - 1;
 		pointer.active = true;
+		trailActive = true;
+		pushTrailPoint(clientX, clientY);
 	}
 
 	function onPointerMove(e) {
@@ -135,6 +227,8 @@
 	function onPointerLeave() {
 		pointer.tx = 0;
 		pointer.ty = 0;
+		trailActive = false;
+		resetTrail();
 	}
 
 	// ---------- Adaptive FPS tier ----------
@@ -285,6 +379,11 @@
 		}
 
 		requestAnimationFrame(draw);
+
+		// Kouzelná modrá stopa — nad hvězdami, pouze pokud je pointer aktivní.
+		if (trailActive && trail.length > 1) {
+			drawTrail();
+		}
 	}
 
 	// ---------- Boot ----------
