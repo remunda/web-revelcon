@@ -149,17 +149,44 @@ function setMuted(m) {
 	master.gain.cancelScheduledValues(Tone.now());
 	master.gain.rampTo(target, dur);
 	btn.style.opacity = m ? "0.5" : "0.7";
-	btn.setAttribute("aria-label", m ? "Zapnout hudbu" : "Ztlumit hudbu");
+	updateIcon();
+}
+
+function updateIcon() {
+	const playing = btn.querySelector('[data-icon="playing"]');
+	const mutedIcon = btn.querySelector('[data-icon="muted"]');
+	if (!playing || !mutedIcon) return;
+	// Show "muted" icon only when started AND muted.
+	// Otherwise show "playing" icon (also used pre-start as the "start music" affordance).
+	const showMuted = started && muted;
+	playing.parentElement.style.display = showMuted ? "none" : "";
+	mutedIcon.parentElement.style.display = showMuted ? "" : "none";
+	btn.setAttribute(
+		"aria-label",
+		!started ? "Spustit hudbu" : muted ? "Zapnout hudbu" : "Ztlumit hudbu"
+	);
 }
 
 const btn = document.createElement("button");
 btn.type = "button";
-btn.setAttribute("aria-label", "Ztlumit hudbu");
-btn.setAttribute("title", "Ztlumit / zapnout hudbu");
+btn.setAttribute("aria-label", "Spustit hudbu");
+btn.setAttribute("title", "Spustit / ztlumit hudbu");
+// Two SVG paths swapped via display: one for "playing" (speaker with waves),
+// one for "muted" (speaker with a slash). Same button, same position.
 btn.innerHTML =
 	'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' +
-	'<path fill="currentColor" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3z"/>' +
-	"</svg>";
+		'<g data-icon="playing">' +
+			'<path fill="currentColor" d="M3 10v4h4l5 4V6L7 10H3z"/>' +
+			'<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M15.5 8.5a4 4 0 0 1 0 7"/>' +
+			'<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M18 6a8 8 0 0 1 0 12"/>' +
+		'</g>' +
+	'</svg>' +
+	'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" style="display:none">' +
+		'<g data-icon="muted">' +
+			'<path fill="currentColor" d="M3 10v4h4l5 4V6L7 10H3z"/>' +
+			'<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M16 9l5 6m0-6l-5 6"/>' +
+		'</g>' +
+	'</svg>';
 Object.assign(btn.style, {
 	position: "fixed",
 	right: "16px",
@@ -184,21 +211,53 @@ Object.assign(btn.style, {
 btn.addEventListener("mouseenter", () => (btn.style.opacity = "1"));
 btn.addEventListener("mouseleave", () => (btn.style.opacity = muted ? "0.5" : "0.7"));
 btn.addEventListener("click", () => {
-	if (!started) start();      // also acts as the user gesture to unlock audio
-	else setMuted(!muted);
+	if (!started) {
+		// Click is itself a user gesture — open both gates and let tryStart()
+		// run as soon as the AudioContext resumes.
+		unlockAudio();
+		startPlayback();
+	} else {
+		setMuted(!muted);
+	}
 });
 document.body.appendChild(btn);
+updateIcon();
 
 // ---------- Start when text appears ----------
-async function start() {
+// Browsers block AudioContext until a user gesture. We split the work:
+//   - `unlockAudio()`  — runs on the first gesture; resumes the context.
+//   - `startPlayback()` — runs when .sequence is visible AND audio is unlocked.
+// Both are safe to call repeatedly; the second call is a no-op.
+
+let audioUnlocked = false;
+let playbackReady = false;
+
+function unlockAudio() {
+	if (audioUnlocked) return;
+	// Tone.start() returns a promise that resolves once the context is running.
+	// We mark audioUnlocked only AFTER it resolves, so tryStart() never runs
+	// against a suspended AudioContext (which silently fails).
+	Tone.start().then(() => {
+		audioUnlocked = true;
+		tryStart();
+	});
+}
+
+async function startPlayback() {
 	if (started) return;
-	// Browsers block AudioContext until a user gesture. If we got here
-	// without one (e.g. autoplay was blocked), wait for the first one.
-	if (Tone.getContext().state !== "running") {
-		await Tone.start();
+	playbackReady = true;
+	tryStart();
+}
+
+async function tryStart() {
+	if (started) return;
+	if (!audioUnlocked || !playbackReady) return;
+	try {
+		await reverb.generate();
+	} catch (_) {
+		// If IR generation fails for any reason, continue without it.
 	}
-	await reverb.generate();
-	// Re-initialize chord (Tonal loaded asynchronously)
+	// Re-initialize chord (Tonal loaded asynchronously via ESM)
 	setProgression(PROGRESSIONS[0]);
 	Tone.Transport.start();
 	started = true;
@@ -206,31 +265,31 @@ async function start() {
 	master.gain.cancelScheduledValues(Tone.now());
 	master.gain.setValueAtTime(0, Tone.now());
 	master.gain.rampTo(TARGET_GAIN, FADE_IN_SEC);
-	// Reveal mute button
+	// Reveal mute button + update icon
 	btn.style.opacity = "0.7";
+	updateIcon();
 }
 
 function bootWhenTextVisible() {
-	const tryStart = () => setTimeout(start, START_DELAY_SEC * 1000);
+	const scheduleStart = () => setTimeout(startPlayback, START_DELAY_SEC * 1000);
 
 	const startWhenReady = () => {
 		const el = document.querySelector(".sequence");
 		if (!el) {
-			// Fallback if element is missing — just delay a bit.
-			tryStart();
+			scheduleStart();
 			return;
 		}
 		const rect = el.getBoundingClientRect();
 		const inView = rect.top < window.innerHeight && rect.bottom > 0;
 		if (inView) {
-			tryStart();
+			scheduleStart();
 			return;
 		}
 		const obs = new IntersectionObserver((entries) => {
 			for (const entry of entries) {
 				if (entry.isIntersecting) {
 					obs.disconnect();
-					tryStart();
+					scheduleStart();
 					return;
 				}
 			}
@@ -245,15 +304,49 @@ function bootWhenTextVisible() {
 	}
 }
 
-// AudioContext can only start after a user gesture. The mute button acts
-// as the primary unlock trigger (it appears once music is ready); we also
-// listen for any first gesture as a fallback.
-btn.addEventListener("click", () => {
-	if (!started) start();
-	else setMuted(!muted);
-});
-["pointerdown", "keydown", "touchstart"].forEach((ev) =>
-	window.addEventListener(ev, () => { if (!started) start(); }, { once: true, passive: true })
+// Unlock audio on the first gesture anywhere — clicks, touches, key presses,
+// scrolling, mouse moves. Browsers count all of these as valid gestures.
+["pointerdown", "keydown", "touchstart", "mousemove", "wheel"].forEach((ev) =>
+	window.addEventListener(ev, unlockAudio, { once: true, passive: true })
 );
+
+btn.addEventListener("click", () => {
+	if (!started) {
+		// Belt-and-braces: a click on the button is itself a gesture, so unlock
+		// fires here too. startPlayback() schedules it once both gates are open.
+		scheduleStartOnUnlock();
+	} else {
+		setMuted(!muted);
+	}
+});
+// After clicking the button, give the context a beat to resume and start.
+function scheduleStartOnUnlock() {
+	unlockAudio();
+	setTimeout(startPlayback, 50);
+}
+
+// ---------- Click-on-star = random bell ping ----------
+// Plays one random note from the current chord. Higher velocity, shorter
+// envelope than the ambient bells so it feels like a "ping" on top.
+function playStarPing() {
+	if (!started || chordNotes.length === 0) return;
+	const note = chordNotes[Math.floor(Math.random() * chordNotes.length)];
+	bell.triggerAttackRelease(note, "8n", Tone.now(), 0.55);
+}
+
+// Listen for clicks on the stars canvas — each click spawns a star in
+// main.js AND triggers a bell ping here. Two listeners, one event, no
+// cross-module plumbing needed.
+const canvas = document.getElementById("stars");
+if (canvas) {
+	canvas.addEventListener("click", () => {
+		if (!started) {
+			// First click on canvas also acts as the unlock gesture.
+			unlockAudio();
+			scheduleStartOnUnlock();
+		}
+		playStarPing();
+	});
+}
 
 bootWhenTextVisible();
