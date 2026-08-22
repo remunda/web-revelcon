@@ -1,0 +1,173 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	font-family: "Metamorphous", "Cormorant Garamond", "EB Garamond", Garamond,
+		"Times New Roman", serif;
+	color: #fff;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	min-height: 100vh;
+	min-height: 100dvh;
+	min-height: -webkit-fill-available;
+	position: relative;
+	background: #05060f;
+}
+
+/* Animated night-sky gradient — slow, organic, never repeats obviously */
+.sky {
+	position: fixed;
+	inset: -10%;
+	z-index: 0;
+	background:
+		radial-gradient(
+			ellipse 60% 50% at 20% 15%,
+			rgba(58, 38, 110, 0.55) 0%,
+			rgba(58, 38, 110, 0) 60%
+		),
+		radial-gradient(
+			ellipse 55% 45% at 85% 25%,
+			rgba(20, 60, 120, 0.5) 0%,
+			rgba(20, 60, 120, 0) 65%
+		),
+		radial-gradient(
+			ellipse 70% 55% at 50% 95%,
+			rgba(80, 30, 130, 0.45) 0%,
+			rgba(80, 30, 130, 0) 60%
+		),
+		radial-gradient(
+			ellipse 50% 40% at 75% 80%,
+			rgba(10, 80, 140, 0.4) 0%,
+			rgba(10, 80, 140, 0) 65%
+		),
+		linear-gradient(180deg, #04050d 0%, #0a0a1f 40%, #0d0820 70%, #050414 100%);
+	filter: saturate(1.05);
+	animation: skyDrift 32s ease-in-out infinite alternate;
+	will-change: transform, filter;
+}
+
+/* Subtle nebula noise overlay so the gradient doesn't look like flat CSS */
+.sky::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image:
+		radial-gradient(
+			circle at 30% 40%,
+			rgba(255, 255, 255, 0.04) 0%,
+			rgba(255, 255, 255, 0) 40%
+		),
+		radial-gradient(
+			circle at 70% 60%,
+			rgba(180, 200, 255, 0.05) 0%,
+			rgba(180, 200, 255, 0) 45%
+		);
+	mix-blend-mode: screen;
+	opacity: 0.7;
+	animation: nebulaShift 24s ease-in-out infinite alternate;
+}
+
+@keyframes skyDrift {
+	0% {
+		transform: translate3d(0, 0, 0) scale(1);
+		filter: saturate(1.05) hue-rotate(0deg);
+	}
+	50% {
+		transform: translate3d(-2%, 1%, 0) scale(1.04);
+		filter: saturate(1.15) hue-rotate(-8deg);
+	}
+	100% {
+		transform: translate3d(2%, -1%, 0) scale(1.02);
+		filter: saturate(1.1) hue-rotate(6deg);
+	}
+}
+
+@keyframes nebulaShift {
+	0% {
+		transform: translate3d(0, 0, 0);
+		opacity: 0.6;
+	}
+	100% {
+		transform: translate3d(3%, -2%, 0);
+		opacity: 0.85;
+	}
+}
+
+#stars {
+	position: fixed;
+	inset: 0;
+	width: 100vw;
+	height: 100vh;
+	height: 100dvh;
+	display: block;
+	z-index: 1;
+	touch-action: none;
+}
+
+.center {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 2;
+	pointer-events: none;
+	padding: 1rem;
+}
+
+.title {
+	margin: 0;
+	font-family: "Metamorphous", "Cormorant Garamond", "EB Garamond", Garamond,
+		"Times New Roman", serif;
+	font-size: clamp(2.5rem, 12vw, 9rem);
+	font-weight: 400;
+	letter-spacing: 0.1em;
+	text-align: center;
+	background: linear-gradient(
+		180deg,
+		#fff8dc 0%,
+		#f5e6a8 35%,
+		#d4a857 75%,
+		#a37a2c 100%
+	);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
+	text-shadow: 0 0 24px rgba(212, 168, 87, 0.35);
+	animation: glow 4s ease-in-out infinite alternate;
+	user-select: none;
+}
+
+@keyframes glow {
+	from {
+		filter: drop-shadow(0 0 6px rgba(245, 230, 168, 0.3))
+			drop-shadow(0 0 10px rgba(212, 168, 87, 0.2));
+	}
+	to {
+		filter: drop-shadow(0 0 14px rgba(245, 230, 168, 0.55))
+			drop-shadow(0 0 22px rgba(212, 168, 87, 0.35));
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.title {
+		animation: none;
+	}
+	.sky,
+	.sky::after {
+		animation: none;
+	}
+}

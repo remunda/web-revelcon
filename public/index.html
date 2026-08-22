@@ -3,183 +3,23 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-		<meta name="theme-color" content="#000000" />
+		<meta name="theme-color" content="#05060f" />
 		<meta name="description" content="RevelCON" />
 		<title>RevelCON</title>
-		<style>
-			*,
-			*::before,
-			*::after {
-				box-sizing: border-box;
-			}
-
-			html,
-			body {
-				margin: 0;
-				padding: 0;
-				height: 100%;
-				width: 100%;
-				background: #000;
-				overflow: hidden;
-				font-family:
-					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-					Cantarell, "Helvetica Neue", Arial, sans-serif;
-				color: #fff;
-				-webkit-font-smoothing: antialiased;
-				-moz-osx-font-smoothing: grayscale;
-			}
-
-			body {
-				min-height: 100vh;
-				min-height: 100dvh;
-				min-height: -webkit-fill-available;
-				position: relative;
-			}
-
-			#stars {
-				position: fixed;
-				inset: 0;
-				width: 100vw;
-				height: 100vh;
-				height: 100dvh;
-				display: block;
-				z-index: 0;
-			}
-
-			.center {
-				position: fixed;
-				inset: 0;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				z-index: 1;
-				pointer-events: none;
-				padding: 1rem;
-			}
-
-			.title {
-				margin: 0;
-				font-size: clamp(2.5rem, 12vw, 9rem);
-				font-weight: 800;
-				letter-spacing: 0.08em;
-				text-align: center;
-				background: linear-gradient(
-					180deg,
-					#ffffff 0%,
-					#d6e4ff 45%,
-					#8aa9ff 100%
-				);
-				-webkit-background-clip: text;
-				background-clip: text;
-				-webkit-text-fill-color: transparent;
-				color: transparent;
-				text-shadow: 0 0 30px rgba(140, 170, 255, 0.35);
-				animation: glow 4s ease-in-out infinite alternate;
-				user-select: none;
-			}
-
-			@keyframes glow {
-				from {
-					filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
-				}
-				to {
-					filter: drop-shadow(0 0 22px rgba(180, 200, 255, 0.6));
-				}
-			}
-
-			@media (prefers-reduced-motion: reduce) {
-				.title {
-					animation: none;
-				}
-			}
-		</style>
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Metamorphous&display=swap"
+		/>
+		<link rel="stylesheet" href="/styles.css" />
 	</head>
 	<body>
+		<div class="sky" aria-hidden="true"></div>
 		<canvas id="stars" aria-hidden="true"></canvas>
 		<main class="center">
-			<h1 class="title">RevelCON</h1>
+			<h1 class="title">REVELCON</h1>
 		</main>
-		<script>
-			(() => {
-				const canvas = document.getElementById("stars");
-				const ctx = canvas.getContext("2d");
-				if (!ctx) return;
-
-				const STAR_COUNT = 220;
-				const stars = [];
-				let width = 0;
-				let height = 0;
-				let dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-
-				function rand(min, max) {
-					return Math.random() * (max - min) + min;
-				}
-
-				function makeStar(layer) {
-					return {
-						x: Math.random() * width,
-						y: Math.random() * height,
-						z: layer,
-						r: rand(0.3, 1.6) * (0.4 + layer * 0.4),
-						speed: rand(0.02, 0.12) * (0.4 + layer * 0.6),
-						twinkleSpeed: rand(0.005, 0.02),
-						twinklePhase: Math.random() * Math.PI * 2,
-						hue: rand(200, 230),
-					};
-				}
-
-				function resize() {
-					dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-					width = window.innerWidth;
-					height = window.innerHeight;
-					canvas.width = Math.floor(width * dpr);
-					canvas.height = Math.floor(height * dpr);
-					canvas.style.width = width + "px";
-					canvas.style.height = height + "px";
-					ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-					stars.length = 0;
-					for (let i = 0; i < STAR_COUNT; i++) {
-						const layer = Math.random() < 0.6 ? 1 : Math.random() < 0.85 ? 2 : 3;
-						stars.push(makeStar(layer));
-					}
-				}
-
-				function draw(t) {
-					ctx.clearRect(0, 0, width, height);
-
-					for (const s of stars) {
-						s.y += s.speed;
-						if (s.y - s.r > height) {
-							s.y = -s.r;
-							s.x = Math.random() * width;
-						}
-
-						const twinkle =
-							0.55 + 0.45 * Math.sin(t * s.twinkleSpeed + s.twinklePhase);
-						const alpha = twinkle * (0.4 + s.z * 0.2);
-
-						ctx.beginPath();
-						ctx.fillStyle = `hsla(${s.hue}, 30%, 92%, ${alpha})`;
-						ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-						ctx.fill();
-
-						if (s.r > 1.1) {
-							ctx.beginPath();
-							ctx.fillStyle = `hsla(${s.hue}, 30%, 92%, ${alpha * 0.25})`;
-							ctx.arc(s.x, s.y, s.r * 2.4, 0, Math.PI * 2);
-							ctx.fill();
-						}
-					}
-
-					requestAnimationFrame(draw);
-				}
-
-				resize();
-				window.addEventListener("resize", resize, { passive: true });
-				window.addEventListener("orientationchange", resize, { passive: true });
-				requestAnimationFrame(draw);
-			})();
-		</script>
+		<script defer src="/main.js"></script>
 	</body>
 </html>
