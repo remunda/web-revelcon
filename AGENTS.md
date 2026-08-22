@@ -13,9 +13,12 @@ For all limits and quotas, retrieve from the product's `/platform/limits/` page.
 
 | Command | Purpose |
 |---------|---------|
-| `bun wrangler dev` | Local development |
+| `bun wrangler dev` | Local development |  
 | `bun wrangler deploy` | Deploy to Cloudflare |
 | `bun wrangler types` | Generate TypeScript types |
+
+Running local development makes site available on http://localhost:8787/ check it if needed.
+
 
 Run `wrangler types` after changing bindings in wrangler.jsonc.
 

@@ -151,6 +151,9 @@ body {
 /* Each intro line */
 .line {
 	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	margin: 0;
 	font-family: var(--font-base);
 	font-weight: 400;
@@ -158,10 +161,34 @@ body {
 	letter-spacing: 0.02em;
 	line-height: 1.5;
 	text-align: center;
+	width: 100%;
 	color: rgba(245, 230, 168, 0.92);
 	text-shadow: 0 0 20px rgba(212, 168, 87, 0.35);
 	opacity: 0;
 	pointer-events: none;
+}
+
+@keyframes lineShow {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, calc(-50% + 8px));
+		filter: blur(6px);
+	}
+	15% {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+		filter: blur(0);
+	}
+	75% {
+		opacity: 1;
+		transform: translate(-50%, -50%);
+		filter: blur(0);
+	}
+	100% {
+		opacity: 0;
+		transform: translate(-50%, calc(-50% - 8px));
+		filter: blur(6px);
+	}
 }
 
 /* Sequence: 4 lines, each visible for ~5.5s with stagger.
@@ -172,28 +199,6 @@ body {
    Line 4: starts at 17.1s, ends ~22.0s
    Title: starts at 22.6s
 */
-@keyframes lineShow {
-	0% {
-		opacity: 0;
-		transform: translateY(8px);
-		filter: blur(6px);
-	}
-	15% {
-		opacity: 1;
-		transform: translateY(0);
-		filter: blur(0);
-	}
-	75% {
-		opacity: 1;
-		transform: translateY(0);
-		filter: blur(0);
-	}
-	100% {
-		opacity: 0;
-		transform: translateY(-8px);
-		filter: blur(6px);
-	}
-}
 
 .line:nth-child(1) {
 	animation: lineShow 5.5s ease-in-out 0.6s both;
@@ -211,33 +216,33 @@ body {
 @keyframes titleReveal {
 	0% {
 		opacity: 0;
-		transform: scale(0.9);
+		transform: translate(-50%, -50%) scale(0.9);
 		filter: blur(8px);
 	}
 	60% {
 		opacity: 1;
-		transform: scale(1.04);
+		transform: translate(-50%, -50%) scale(1.04);
 		filter: blur(0);
 	}
 	100% {
 		opacity: 1;
-		transform: scale(1);
+		transform: translate(-50%, -50%) scale(1);
 		filter: blur(0);
 	}
 }
 
 .title {
 	position: absolute;
-	inset: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	margin: 0;
 	font-family: var(--font-display);
 	font-size: clamp(2.5rem, 12vw, 9rem);
 	font-weight: 400;
 	letter-spacing: 0.05em;
 	text-align: center;
+	white-space: nowrap;
 	background: linear-gradient(
 		180deg,
 		#fff8dc 0%,
