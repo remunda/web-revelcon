@@ -137,7 +137,101 @@ body {
 	padding: 1rem;
 }
 
+/* Sequence container — only one child visible at a time */
+.sequence {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	max-width: min(620px, 88vw);
+	min-height: 3em;
+}
+
+/* Each intro line */
+.line {
+	position: absolute;
+	margin: 0;
+	font-family: var(--font-base);
+	font-weight: 400;
+	font-size: clamp(1.05rem, 2.6vw, 1.85rem);
+	letter-spacing: 0.02em;
+	line-height: 1.5;
+	text-align: center;
+	color: rgba(245, 230, 168, 0.92);
+	text-shadow: 0 0 20px rgba(212, 168, 87, 0.35);
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Sequence: 4 lines, each visible for ~5.5s with stagger.
+   Timing per line: 0.8s fade-in, 3.6s hold, 1.1s fade-out
+   Line 1: starts at 0.6s, ends ~5.5s
+   Line 2: starts at 6.1s, ends ~11.0s
+   Line 3: starts at 11.6s, ends ~16.5s
+   Line 4: starts at 17.1s, ends ~22.0s
+   Title: starts at 22.6s
+*/
+@keyframes lineShow {
+	0% {
+		opacity: 0;
+		transform: translateY(8px);
+		filter: blur(6px);
+	}
+	15% {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
+	75% {
+		opacity: 1;
+		transform: translateY(0);
+		filter: blur(0);
+	}
+	100% {
+		opacity: 0;
+		transform: translateY(-8px);
+		filter: blur(6px);
+	}
+}
+
+.line:nth-child(1) {
+	animation: lineShow 5.5s ease-in-out 0.6s both;
+}
+.line:nth-child(2) {
+	animation: lineShow 5.5s ease-in-out 6.1s both;
+}
+.line:nth-child(3) {
+	animation: lineShow 5.5s ease-in-out 11.6s both;
+}
+.line:nth-child(4) {
+	animation: lineShow 5.5s ease-in-out 17.1s both;
+}
+
+@keyframes titleReveal {
+	0% {
+		opacity: 0;
+		transform: scale(0.9);
+		filter: blur(8px);
+	}
+	60% {
+		opacity: 1;
+		transform: scale(1.04);
+		filter: blur(0);
+	}
+	100% {
+		opacity: 1;
+		transform: scale(1);
+		filter: blur(0);
+	}
+}
+
 .title {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	margin: 0;
 	font-family: var(--font-display);
 	font-size: clamp(2.5rem, 12vw, 9rem);
@@ -156,8 +250,10 @@ body {
 	-webkit-text-fill-color: transparent;
 	color: transparent;
 	text-shadow: 0 0 24px rgba(212, 168, 87, 0.35);
-	animation: glow 4s ease-in-out infinite alternate;
+	animation: titleReveal 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) 22.6s both,
+		glow 4s ease-in-out 24.4s infinite alternate;
 	user-select: none;
+	opacity: 0;
 }
 
 @keyframes glow {
@@ -174,6 +270,10 @@ body {
 @media (prefers-reduced-motion: reduce) {
 	.title {
 		animation: none;
+		opacity: 1;
+	}
+	.line {
+		display: none;
 	}
 	.sky,
 	.sky::after {
