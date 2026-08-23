@@ -216,12 +216,13 @@ body {
    Line 2: reveal 13.0s -> 20.0s, fade 20.0s -> 23.0s
    Line 3: reveal 26.0s -> 33.0s, fade 33.0s -> 36.0s
    Line 4: reveal 39.0s -> 46.0s, fade 46.0s -> 49.0s
-   Title: reveal starts at 49.0s, takes 7s
+   Title: flurry letter reveal 49.0s -> 50.22s (8 letters, 0.06s step, 0.80s each) + gentle breeze sway
    More-info: reveal starts at 49.5s, takes 7s
-
+ 
    Notes on fill-mode:
    - fogReveal uses `both` so the 0% keyframe (opacity 0) is held during the
      animation-delay (otherwise the line would show before its turn).
+   - letterArrive uses `both` so the letter remains hidden (opacity 0) until its delay starts.
    - fogFade uses `forwards` so it does NOT hold its 0% keyframe during its
      own delay — otherwise it would override fogReveal with opacity 1 and
      flash all lines visible at t=0.
@@ -244,22 +245,146 @@ body {
 	animation-delay: 39s, 46s;
 }
 
-@keyframes titleReveal {
+@keyframes letterArrive {
 	0% {
 		opacity: 0;
-		transform: translate(-50%, -50%) scale(0.96);
-		filter: blur(20px);
+		transform: translate(var(--dx-from, 0px), var(--dy-from, 28px)) scale(0.92);
 	}
-	55% {
-		opacity: 0.9;
-		transform: translate(-50%, -50%) scale(1.02);
-		filter: blur(6px);
+	70% {
+		opacity: 1;
+		transform: translate(calc(var(--dx-from, 0px) * -0.06), calc(var(--dy-from, 28px) * -0.06)) scale(1.02);
 	}
 	100% {
 		opacity: 1;
-		transform: translate(-50%, -50%) scale(1);
-		filter: blur(0);
+		transform: translate(0, 0) scale(1);
 	}
+}
+
+@keyframes letterSway {
+	0% {
+		transform: translate(var(--sway-x1, -1.2px), var(--sway-y1, -1.5px)) rotate(var(--sway-rot1, -1.2deg));
+	}
+	100% {
+		transform: translate(var(--sway-x2, 1.4px), var(--sway-y2, 1.8px)) rotate(var(--sway-rot2, 1.1deg));
+	}
+}
+
+.letter {
+	transform-box: fill-box;
+	transform-origin: center;
+	opacity: 0;
+	animation: letterArrive 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sway {
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: letterSway var(--sway-dur, 5.2s) ease-in-out var(--sway-delay, 50s) infinite alternate;
+}
+
+.letter:nth-child(1) {
+	animation-delay: 49s;
+	--dx-from: -32px;
+	--dy-from: 26px;
+	--sway-delay: 49.8s;
+	--sway-dur: 4.6s;
+	--sway-rot1: -1.3deg;
+	--sway-rot2: 1.1deg;
+	--sway-x1: -1.4px;
+	--sway-y1: -1.8px;
+	--sway-x2: 1.2px;
+	--sway-y2: 1.5px;
+}
+.letter:nth-child(2) {
+	animation-delay: 49.06s;
+	--dx-from: -20px;
+	--dy-from: -28px;
+	--sway-delay: 49.86s;
+	--sway-dur: 5.4s;
+	--sway-rot1: 1deg;
+	--sway-rot2: -1.4deg;
+	--sway-x1: 1.1px;
+	--sway-y1: -2px;
+	--sway-x2: -1.3px;
+	--sway-y2: 1.2px;
+}
+.letter:nth-child(3) {
+	animation-delay: 49.12s;
+	--dx-from: -4px;
+	--dy-from: 34px;
+	--sway-delay: 49.92s;
+	--sway-dur: 4.2s;
+	--sway-rot1: -0.9deg;
+	--sway-rot2: 1.5deg;
+	--sway-x1: -0.8px;
+	--sway-y1: 1.6px;
+	--sway-x2: 1.4px;
+	--sway-y2: -1.8px;
+}
+.letter:nth-child(4) {
+	animation-delay: 49.18s;
+	--dx-from: 14px;
+	--dy-from: -30px;
+	--sway-delay: 49.98s;
+	--sway-dur: 6s;
+	--sway-rot1: 1.2deg;
+	--sway-rot2: -1.1deg;
+	--sway-x1: 1.5px;
+	--sway-y1: -1.4px;
+	--sway-x2: -1px;
+	--sway-y2: 1.6px;
+}
+.letter:nth-child(5) {
+	animation-delay: 49.24s;
+	--dx-from: -22px;
+	--dy-from: 28px;
+	--sway-delay: 50.04s;
+	--sway-dur: 4.8s;
+	--sway-rot1: -1.4deg;
+	--sway-rot2: 0.8deg;
+	--sway-x1: -1.2px;
+	--sway-y1: -2.2px;
+	--sway-x2: 1.1px;
+	--sway-y2: 1.4px;
+}
+.letter:nth-child(6) {
+	animation-delay: 49.3s;
+	--dx-from: -8px;
+	--dy-from: -32px;
+	--sway-delay: 50.1s;
+	--sway-dur: 5.7s;
+	--sway-rot1: 0.8deg;
+	--sway-rot2: -1.3deg;
+	--sway-x1: 0.9px;
+	--sway-y1: 1.8px;
+	--sway-x2: -1.5px;
+	--sway-y2: -1.6px;
+}
+.letter:nth-child(7) {
+	animation-delay: 49.36s;
+	--dx-from: 26px;
+	--dy-from: 24px;
+	--sway-delay: 50.16s;
+	--sway-dur: 4.4s;
+	--sway-rot1: -1.1deg;
+	--sway-rot2: 1.2deg;
+	--sway-x1: -1.5px;
+	--sway-y1: -1.2px;
+	--sway-x2: 1.3px;
+	--sway-y2: 1.8px;
+}
+.letter:nth-child(8) {
+	animation-delay: 49.42s;
+	--dx-from: 36px;
+	--dy-from: 18px;
+	--sway-delay: 50.22s;
+	--sway-dur: 5.1s;
+	--sway-rot1: 1.3deg;
+	--sway-rot2: -1deg;
+	--sway-x1: 1.2px;
+	--sway-y1: -1.6px;
+	--sway-x2: -1.1px;
+	--sway-y2: 1.5px;
 }
 
 .title {
@@ -271,9 +396,7 @@ body {
 	width: min(96vw, 1500px);
 	aspect-ratio: 800 / 200;
 	user-select: none;
-	opacity: 0;
-	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 49s both,
-		glow 4s ease-in-out 56.2s infinite alternate;
+	animation: glow 4s ease-in-out 56.2s infinite alternate;
 }
 
 .title-svg {
@@ -318,6 +441,15 @@ body {
 	.title {
 		animation: none;
 		opacity: 1;
+	}
+	.letter {
+		animation: none;
+		opacity: 1;
+		transform: none;
+	}
+	.sway {
+		animation: none;
+		transform: none;
 	}
 	.more-info {
 		animation: none;

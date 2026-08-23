@@ -113,13 +113,16 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 
 #### 7. Hero title "RevelCON"
 - `<h1 class="title">` contains an inline `<svg class="title-svg">` with `viewBox="0 0 800 200"` and `preserveAspectRatio="xMidYMid meet"`.
-- Each letter is a separate `<path>` element (Stoke glyph converted to outlines via `fontTools.pens.svgPathPen` in `generate-logo.py`). No font is downloaded at runtime — the SVG is self-contained.
+- Each letter is wrapped in `<g class="letter"><g class="sway"><path .../></g></g>` (Stoke glyph converted to outlines via `fontTools.pens.svgPathPen` in `generate-logo.py`). No font is downloaded at runtime — the SVG is self-contained.
 - Wave: each path has a hand-tuned `transform="translate(x y) scale(s -s)"` where `y` follows a sinusoid (amplitude 10 px, first letter at baseline, peak in middle, last letter back at baseline).
 - Gold gradient fill (`#fff8dc → #f5e6a8 → #a37a2c`) via inline `<linearGradient id="titleGold">` applied to the wrapping `<g fill="url(#titleGold)">`. Soft glow via inline `<filter id="titleGlow">` (Gaussian blur stdDeviation 0.8 + feMerge).
-- `.title` is sized `width: min(92vw, 1100px)` with `aspect-ratio: 800 / 200` so the SVG scales proportionally on any viewport. Mobile breakpoints tighten width to `94vw` (≤480 px) and `96vw` (≤360 px).
-- Two-stage animation: `titleReveal` 7 s starting at 49 s (opacity 0 → 1, scale 0.96 → 1, blur 20 px → 0, cubic-bezier easing), then perpetual `glow` 4 s alternate starting at 56.2 s.
-- After title, `<p class="more-info">více informací brzy</p>` fades in via the same `fogReveal` 7 s starting at 49.5 s, positioned `clamp(6rem, 15vw, 11rem)` below the title.
+- `.title` is sized `width: min(96vw, 1500px)` with `aspect-ratio: 800 / 200` so the SVG scales proportionally on any viewport. Mobile breakpoints tighten width to `98vw` (≤480 px) and `100vw` (≤360 px).
+- **Multi-directional flurry arrival**: `letterArrive` keyframes (opacity 0 → 1, `translate(var(--dx-from), var(--dy-from))` with slight overshoot, scale 0.92 → 1.02 → 1, easing `cubic-bezier(0.16, 1, 0.3, 1)`) running for 0.80 s per letter. Each letter flies in from a distinct angle/vector (below-left, top-left, bottom, top-right, etc.) with a tight 0.06 s stagger (launching 49.00 s to 49.42 s, completing ~50.22 s) without any blur.
+- **Gentle wind sway**: Inner `<g class="sway">` elements run `letterSway` keyframes (subtle rotation -1.4° to +1.5° and translation ±1.5px to ±2.2px on 4.2s–6.0s out-of-phase loops) starting immediately as each letter completes arrival (~49.80s–50.22s).
+- **Perpetual glow**: `glow` keyframes 4 s alternate starting at 56.2 s on `.title`.
+- After title starts arriving, `<p class="more-info">více informací brzy</p>` fades in via `fogReveal` 7 s starting at 49.5 s, positioned `clamp(6rem, 15vw, 11rem)` below the title.
 - `aria-label="Revelcon"` on the `<h1>` keeps the title accessible to screen readers (the SVG itself is `role="img"`).
+- Under `prefers-reduced-motion: reduce`, `.title`, `.letter`, and `.sway` animations are disabled and all letters show immediately with `opacity: 1; transform: none;`.
 - To regenerate paths after editing `generate-logo.py`: `python3 generate-logo.py` (requires `fontTools`; reads `/tmp/opencode/stoke/Stoke.ttf`).
 
 #### 8. Typography
