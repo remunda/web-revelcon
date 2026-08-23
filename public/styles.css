@@ -261,9 +261,9 @@ body {
 		filter: blur(16px);
 		transform: translate(-50%, calc(-50% + 6px));
 	}
-	55% {
-		opacity: 0.85;
-		filter: blur(5px);
+	30% {
+		opacity: 1;
+		filter: blur(0);
 		transform: translate(-50%, -50%);
 	}
 	100% {
@@ -279,7 +279,7 @@ body {
 		filter: blur(0);
 		transform: translate(-50%, -50%);
 	}
-	33% {
+	30% {
 		opacity: 0;
 		filter: blur(12px);
 		transform: translate(-50%, calc(-50% - 6px));
@@ -291,17 +291,19 @@ body {
 	}
 }
 
-/* Sequence: 4 lines, each visible while slowly fading through fog.
-   Stagger of 3s between lines so each line fully disappears (opacity 0)
-   before the next one starts emerging — gives a clear "blank" pause
-   between blur effects.
+/* Sequence: 4 lines, each fully readable (sharp, no blur) for ~5s.
+   fogReveal: 8s total — first ~2.4s dissolves in through fog, then holds
+   sharp and readable for the remaining ~5.6s.
+   fogFade: 4s total — first ~1.2s blurs/fades out, then holds invisible.
+   Stagger of 4s between lines so each line is fully visible (sharp) for
+   at least 4s before the next starts dissolving in.
 
-   Line 1: reveal 0.0s -> 6.0s, fade 6.0s -> 9.0s (1s fade-out + 2s hold)
-   Line 2: reveal 3.0s -> 9.0s, fade 9.0s -> 12.0s
-   Line 3: reveal 6.0s -> 12.0s, fade 12.0s -> 15.0s
-   Line 4: reveal 9.0s -> 15.0s, fade 15.0s -> 18.0s
-   Title: reveal starts at 12.0s, takes 7s
-   More-info: reveal starts at 12.5s, takes 7s
+   Line 1: reveal 0.0s -> 8.0s, fade 8.0s -> 12.0s (sharp ~2.4s -> 8.0s)
+   Line 2: reveal 4.0s -> 12.0s, fade 12.0s -> 16.0s
+   Line 3: reveal 8.0s -> 16.0s, fade 16.0s -> 20.0s
+   Line 4: reveal 12.0s -> 20.0s, fade 20.0s -> 24.0s
+   Title: reveal starts at 16.0s, takes 7s
+   More-info: reveal starts at 16.5s, takes 7s
 
    Notes on fill-mode:
    - fogReveal uses `both` so the 0% keyframe (opacity 0) is held during the
@@ -311,21 +313,21 @@ body {
      flash all lines visible at t=0.
 */
 .line {
-	animation: fogReveal 6s ease-out both,
-		fogFade 3s ease-in forwards;
+	animation: fogReveal 8s ease-out both,
+		fogFade 4s ease-in forwards;
 }
 
 .line:nth-child(1) {
-	animation-delay: 0s, 6s;
+	animation-delay: 0s, 8s;
 }
 .line:nth-child(2) {
-	animation-delay: 3s, 9s;
+	animation-delay: 4s, 12s;
 }
 .line:nth-child(3) {
-	animation-delay: 6s, 12s;
+	animation-delay: 8s, 16s;
 }
 .line:nth-child(4) {
-	animation-delay: 9s, 15s;
+	animation-delay: 12s, 20s;
 }
 
 @keyframes titleReveal {
@@ -371,8 +373,8 @@ body {
 	-webkit-text-fill-color: transparent;
 	color: transparent;
 	text-shadow: 0 0 24px rgba(212, 168, 87, 0.35);
-	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 12s both,
-		glow 4s ease-in-out 19.2s infinite alternate;
+	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 16s both,
+		glow 4s ease-in-out 23.2s infinite alternate;
 	user-select: none;
 	opacity: 0;
 }
@@ -392,7 +394,7 @@ body {
 	white-space: nowrap;
 	color: rgba(245, 230, 168, 0.95);
 	text-shadow: 0 0 18px rgba(212, 168, 87, 0.3);
-	animation: fogReveal 7s ease-out 12.5s both;
+	animation: fogReveal 7s ease-out 16.5s both;
 	opacity: 0;
 	pointer-events: none;
 }
