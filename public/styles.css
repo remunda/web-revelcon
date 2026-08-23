@@ -286,13 +286,16 @@ body {
 	}
 }
 
-/* Sequence: 4 lines, each visible ~8s with stagger (slow fog in/out).
-   Line 1: 0.6s -> ~8.6s
-   Line 2: 9.2s -> ~17.2s
-   Line 3: 17.8s -> ~25.8s
-   Line 4: 26.4s -> ~34.4s
-   Title: starts ~35.0s
-   More info: starts ~35.8s
+/* Sequence: 4 lines, each visible while slowly fading through fog.
+   No long delays — each line uses a small stagger (1.5s) and a long blur
+   duration so the fog reveal itself carries the pace.
+
+   Line 1: reveal 0.0s -> 6.0s, fade 6.0s -> 9.0s
+   Line 2: reveal 1.5s -> 7.5s, fade 7.5s -> 10.5s
+   Line 3: reveal 3.0s -> 9.0s, fade 9.0s -> 12.0s
+   Line 4: reveal 4.5s -> 10.5s, fade 10.5s -> 13.5s
+   Title: reveal starts at 6.5s, takes 7s
+   More-info: reveal starts at 7.0s, takes 7s
 
    Notes on fill-mode:
    - fogReveal uses `both` so the 0% keyframe (opacity 0) is held during the
@@ -302,21 +305,21 @@ body {
      flash all lines visible at t=0.
 */
 .line {
-	animation: fogReveal 3.2s ease-out both,
-		fogFade 1.4s ease-in forwards;
+	animation: fogReveal 6s ease-out both,
+		fogFade 3s ease-in forwards;
 }
 
 .line:nth-child(1) {
-	animation-delay: 0.6s, 4.8s;
+	animation-delay: 0s, 6s;
 }
 .line:nth-child(2) {
-	animation-delay: 9.2s, 13.4s;
+	animation-delay: 1.5s, 7.5s;
 }
 .line:nth-child(3) {
-	animation-delay: 17.8s, 22.0s;
+	animation-delay: 3s, 9s;
 }
 .line:nth-child(4) {
-	animation-delay: 26.4s, 30.6s;
+	animation-delay: 4.5s, 10.5s;
 }
 
 @keyframes titleReveal {
@@ -344,7 +347,7 @@ body {
 	transform: translate(-50%, -50%);
 	margin: 0;
 	font-family: var(--font-display);
-	font-size: clamp(4.5rem, 18vw, 14rem);
+	font-size: clamp(5.5rem, 20vw, 16rem);
 	font-weight: 400;
 	letter-spacing: 0.04em;
 	line-height: 1.1;
@@ -362,20 +365,20 @@ body {
 	-webkit-text-fill-color: transparent;
 	color: transparent;
 	text-shadow: 0 0 24px rgba(212, 168, 87, 0.35);
-	animation: titleReveal 4s cubic-bezier(0.2, 0.7, 0.3, 1) 35s both,
-		glow 4s ease-in-out 39.2s infinite alternate;
+	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 6.5s both,
+		glow 4s ease-in-out 13.7s infinite alternate;
 	user-select: none;
 	opacity: 0;
 }
 
 .more-info {
 	position: absolute;
-	top: calc(50% + clamp(5rem, 14vw, 9rem));
+	top: calc(50% + clamp(6rem, 15vw, 11rem));
 	left: 50%;
 	transform: translate(-50%, -50%);
 	margin: 0;
 	font-family: var(--font-base);
-	font-size: clamp(1.8rem, 6.5vw, 3.4rem);
+	font-size: clamp(2.4rem, 7.5vw, 4rem);
 	font-weight: 400;
 	letter-spacing: 0.02em;
 	line-height: 1.2;
@@ -383,7 +386,7 @@ body {
 	white-space: nowrap;
 	color: rgba(245, 230, 168, 0.95);
 	text-shadow: 0 0 18px rgba(212, 168, 87, 0.3);
-	animation: fogReveal 6s ease-out 35.8s both;
+	animation: fogReveal 7s ease-out 7s both;
 	opacity: 0;
 	pointer-events: none;
 }
@@ -427,7 +430,7 @@ body {
 		overflow-wrap: break-word;
 	}
 	.title {
-		font-size: clamp(3.5rem, 17vw, 6.5rem);
+		font-size: clamp(5rem, 20vw, 8rem);
 		line-height: 1.05;
 		letter-spacing: 0.03em;
 		white-space: normal;
@@ -435,10 +438,10 @@ body {
 		overflow-wrap: break-word;
 	}
 	.more-info {
-		font-size: clamp(1.6rem, 6.5vw, 2.4rem);
-		top: calc(50% + clamp(4.5rem, 16vw, 6.5rem));
+		font-size: clamp(2rem, 7vw, 2.8rem);
+		top: calc(50% + clamp(5.5rem, 18vw, 8rem));
 		white-space: normal;
-		max-width: 92vw;
+		max-width: 80vw;
 		overflow-wrap: break-word;
 	}
 }
@@ -446,10 +449,11 @@ body {
 /* Extra-narrow phones */
 @media (max-width: 360px) {
 	.title {
-		font-size: clamp(2.8rem, 15vw, 5rem);
+		font-size: clamp(4rem, 18vw, 6.5rem);
 	}
 	.more-info {
-		font-size: clamp(1.4rem, 6vw, 2rem);
-		top: calc(50% + clamp(4rem, 14vw, 5.5rem));
+		font-size: clamp(1.7rem, 6.5vw, 2.4rem);
+		top: calc(50% + clamp(5rem, 16vw, 7rem));
+		max-width: 86vw;
 	}
 }
