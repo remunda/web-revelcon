@@ -14,16 +14,14 @@ import * as Tone from "https://esm.sh/tone@14";
 // Triads ring cleaner than 7ths/9ths at the bell register — no muddiness.
 // All four progressions use popular pop cadences the ear recognises instantly.
 const PROGRESSIONS = [
-	["Am", "F",  "C",  "G"],  // vi–IV–I–V (Despacito, twist)
-	["C",  "G",  "Am", "F"],  // I–V–vi–IV (Let It Be, Oasis)
-	["F",  "G",  "C",  "Am"], // IV–V–I–vi (longing ballad)
-	["C",  "Am", "F",  "G"],  // I–vi–IV–V (Wonderful Tonight)
+	["Am", "F",  "G",  "Em"],  // vi–IV–I–V (Despacito, twist)
+	["F",  "G",   "Am", "C"], // IV–V–I–vi (longing ballad)
 ];
-// BPM tuned so one bar = exactly one chord. The groove runs ONCE per chord,
-// then the harmony steps to the next chord — no looping, just one bar per
-// harmonic step. CHORD_SEC == secondsPerBar.
+// BPM tuned so one beat = exactly one chord. The chord scheduler fires
+// every quarter note, so the harmony steps 4 times per bar — fast enough
+// to feel like a moving arpeggio, slow enough that each chord still rings.
 const BPM = 72;
-const CHORD_SEC = (60 / BPM) * 4; // = 1 bar ≈ 3.33s
+const CHORD_SEC = 60 / BPM; // = 1 beat ≈ 0.83s
 const OCTAVE = 5;
 const VEL = 0.32;
 const TARGET_GAIN = 0.22;        // master gain — distant feel
@@ -32,17 +30,16 @@ const NOTE_LEN = "4n";           // each bell rings ~half the gap -> mild overla
 const START_DELAY_SEC = 0.6;     // grace period after text appears
 
 // ---------- Groove (single, magical) ----------
-// Magical bell pattern in 4/4: a 5-note descent with deliberate silences
-// so each ring fades before the next lands. The long 2n on beat 3 leaves
-// the biggest silence — that gap is what makes distant bells feel "magical"
-// (reverb fills it, you hear the overtones fade). No 16th notes, no syncopa;
-// the magic comes from the SPACES between hits, not from complexity.
+// One bell per beat, 4 hits per bar. The chord changes every beat, so each
+// hit lands on a different harmony — that's the "3 chords per beat" feel.
+// Indices climb the chord (root → 3rd → 5th → root) for a slow arpeggio
+// shape; the long 2n on beat 3 leaves the biggest silence for the reverb.
 const quartersToBeat = (i) => i / 4;
 const GROOVE = [
-	{ beat: quartersToBeat(0.0), idx: 0, vel: 1.00, len: "4n" },   // 1: root — opens phrase
-	{ beat: quartersToBeat(1.0), idx: 2, vel: 0.75, len: "4n" },   // 2: third, descending
+	{ beat: quartersToBeat(0.0), idx: 0, vel: 1.00, len: "4n" },   // 1: root
+	{ beat: quartersToBeat(1.0), idx: 2, vel: 0.75, len: "4n" },   // 2: third
 	{ beat: quartersToBeat(2.0), idx: 1, vel: 0.85, len: "2n" },   // 3: fifth, long ring
-	{ beat: quartersToBeat(3.5), idx: 0, vel: 0.55, len: "8n" },   // & of 4: soft root echo
+	{ beat: quartersToBeat(3.0), idx: 0, vel: 0.65, len: "4n" },   // 4: root, soft
 ];
 
 // ---------- Audio graph ----------
@@ -140,11 +137,9 @@ Tone.Transport.scheduleRepeat(() => {
 // Each scheduled tick advances one bar (4/4). Inside the bar we walk the
 // current groove in time order and trigger each note at its absolute beat.
 // If a note's beat falls past the bar's end, drop it (the next bar will
-// One fixed groove plays forever; the scheduler triggers it every bar (4/4).
-// CHORD_SEC = 9s and BPM 72 land exactly 3 bars per chord, so the harmony
-// steps in lockstep with the rhythm.
-
-const secondsPerBar = (60 / BPM) * 4;
+// One fixed groove plays forever; the scheduler triggers it every beat.
+// CHORD_SEC = 1 beat and BPM 72 land exactly one chord per beat, so the
+// harmony steps in lockstep with the rhythm.
 
 // ---------- Note logger ----------
 // Every scheduled note (ambient groove + canvas-click ping) prints a single
@@ -156,26 +151,30 @@ function schedOffsetMs(noteTime) {
 	return Math.round((noteTime - Tone.now()) * 1000);
 }
 
+// Groove scheduler fires once per beat. Each tick plays exactly one note
+// from GROOVE (the one whose beat matches this tick), so the chord change
+// and the bell hit land on the same downbeat — that's the "3 chords per
+// beat" feel: harmony and rhythm locked together.
+const secondsPerBeat = 60 / BPM;
 Tone.Transport.scheduleRepeat((time) => {
 	if (chordNotes.length === 0) return;
-	const barEnd = time + secondsPerBar;
-	for (const step of GROOVE) {
-		const noteTime = time + step.beat * secondsPerBar;
-		if (noteTime >= barEnd) break;
-		const idx = step.idx % chordNotes.length;
-		const note = chordNotes[idx];
-		if (!note) continue;
-		const vel = VEL * step.vel;
-		bell.triggerAttackRelease(note, step.len, noteTime, vel);
-		const off = schedOffsetMs(noteTime);
-		console.log(
-			`[note] ${(currentProgression?.[chordIdx] ?? "??").padEnd(4)} ` +
-			`step=${step.beat.toFixed(2)} idx=${idx} -> ${note.padEnd(3)} ` +
-			`vel=${vel.toFixed(2)} len=${step.len.padEnd(3)} ` +
-			`in ${off >= 0 ? "+" : ""}${off}ms`
-		);
-	}
-}, secondsPerBar);
+	// Beat index within the bar: 0, 1, 2, or 3. We compute it from the
+	// scheduled time relative to the transport's start, modulo one bar.
+	const beatInBar = Math.floor((time / secondsPerBeat)) % 4;
+	const step = GROOVE[beatInBar];
+	if (!step) return;
+	const note = chordNotes[step.idx % chordNotes.length];
+	if (!note) return;
+	const vel = VEL * step.vel;
+	bell.triggerAttackRelease(note, step.len, time, vel);
+	const off = schedOffsetMs(time);
+	console.log(
+		`[note] ${(currentProgression?.[chordIdx] ?? "??").padEnd(4)} ` +
+		`beat=${beatInBar} idx=${step.idx} -> ${note.padEnd(3)} ` +
+		`vel=${vel.toFixed(2)} len=${step.len.padEnd(3)} ` +
+		`in ${off >= 0 ? "+" : ""}${off}ms`
+	);
+}, secondsPerBeat);
 
 // Click on the stars canvas — play a single random bell from the chord.
 const starsCanvas = document.getElementById("stars");

@@ -75,11 +75,12 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 #### 3. Drifting mist field (canvas layer)
 - Mist blobs are rendered **on the same canvas as the stars**, **before** stars in the render loop, so stars stay sharp on top. No CSS layer, no `mix-blend-mode`, no `filter: blur()` — alpha falloff in the radial gradient IS the blur. This keeps the mist field in lockstep with the FPS sampler (it adapts when performance drops).
 - Three depth layers in `main.js` (`makeMist`):
-  - Layer 1 (far): radius 0.18–0.32 × `min(width,height)`, speed 4–9 px/s, alpha 0.18–0.32.
-  - Layer 2 (mid): radius 0.28–0.48, speed 7–14 px/s, alpha 0.22–0.38.
-  - Layer 3 (near): radius 0.40–0.65, speed 11–20 px/s, alpha 0.26–0.44.
-- Each mist has a hue (205–245, cool blue/violet), a `squish` factor (0.7–1.3) so they aren't all perfect circles, and a per-mist vertical wobble (8–28 px amplitude, 22–45 s period) so the field never looks like a conveyor belt.
-- Horizontal drift wraps from right back to left with `r * 1.2` margin so blobs don't visibly "pop in" at the edge; on wrap the Y coordinate re-randomizes so the field stays organic.
+  - Layer 1 (far): base radius 0.12–0.22 × `min(width,height)`, speed 4–9 px/s, alpha 0.18–0.32.
+  - Layer 2 (mid): base radius 0.18–0.32, speed 7–14 px/s, alpha 0.22–0.38.
+  - Layer 3 (near): base radius 0.26–0.42, speed 11–20 px/s, alpha 0.26–0.44.
+- Each mist has a hue (205–245, cool blue/violet) and a `stretchX` factor (2.5–4.5) so it reads as a wide horizontal cloud band rather than a circle. The radial gradient is scaled horizontally via `ctx.scale(stretchX, 1)` and the `fillRect` is widened to match so the gradient isn't clipped.
+- Each mist has a per-mist vertical wobble (8–28 px amplitude, 22–45 s period) so the field never looks like a conveyor belt.
+- Horizontal drift wraps from right back to left with `r * stretchX * 1.2` margin so blobs don't visibly "pop in" at the edge; on wrap the Y coordinate re-randomizes so the field stays organic.
 - Under `prefers-reduced-motion: reduce` mists are still drawn but skip all position updates and wobble (they sit perfectly still).
 
 #### 4. Canvas starfield with parallax, twinkle, glow, and star-shine

@@ -53,19 +53,22 @@
 
 	function makeMist(layer) {
 		// Depth-based ranges — tuned so the field reads as atmospheric depth.
+		// r is the BASE radius (vertical extent). Horizontal stretch is applied
+		// separately via `stretchX`, so mists read as wide horizontal bands
+		// rather than circles.
 		const cfg =
 			layer === 1
-				? { rMin: 0.18, rMax: 0.32, vMin: 4, vMax: 9, aMin: 0.18, aMax: 0.32 }
+				? { rMin: 0.12, rMax: 0.22, vMin: 4, vMax: 9, aMin: 0.18, aMax: 0.32 }
 				: layer === 2
-					? { rMin: 0.28, rMax: 0.48, vMin: 7, vMax: 14, aMin: 0.22, aMax: 0.38 }
-					: { rMin: 0.4, rMax: 0.65, vMin: 11, vMax: 20, aMin: 0.26, aMax: 0.44 };
-		const r = rand(cfg.rMin, cfg.rMax); // radius as fraction of min(width,height)
+					? { rMin: 0.18, rMax: 0.32, vMin: 7, vMax: 14, aMin: 0.22, aMax: 0.38 }
+					: { rMin: 0.26, rMax: 0.42, vMin: 11, vMax: 20, aMin: 0.26, aMax: 0.44 };
+		const r = rand(cfg.rMin, cfg.rMax); // base radius as fraction of min(width,height)
 		const base = Math.min(width, height);
 		return {
 			layer,
 			x: rand(-0.2, 1.2) * width,
 			y: rand(0, height),
-			r: r * base, // absolute px
+			r: r * base, // base radius in px (vertical extent)
 			vx: rand(cfg.vMin, cfg.vMax) / 60, // px/frame at 60fps → very slow
 			alpha: rand(cfg.aMin, cfg.aMax),
 			// Slight vertical wobble — keeps the field from feeling like
@@ -75,8 +78,10 @@
 			wobblePhase: Math.random() * Math.PI * 2,
 			// Hue: cool blues / violets so they harmonize with the night sky.
 			hue: rand(205, 245),
-			// Slight aspect stretch so they don't all look like perfect circles.
-			squish: rand(0.7, 1.3),
+			// Horizontal stretch — mists are 2.5–4.5× wider than tall, so they
+			// read as horizontal cloud bands instead of circles. Combined with
+			// the radial gradient's alpha falloff, the edges feather naturally.
+			stretchX: rand(2.5, 4.5),
 		};
 	}
 
@@ -499,9 +504,10 @@
 
 			if (!reduceMotion) {
 				// Horizontal drift — wrap from right back to left with margin
-				// so mists don't visibly "pop in" at the screen edge.
+				// so mists don't visibly "pop in" at the screen edge. Margin
+				// accounts for the horizontal stretch (stretchX × r).
 				m.x += m.vx * (dt * 60); // normalize: vx is per 60fps frame
-				const margin = m.r * 1.2;
+				const margin = m.r * m.stretchX * 1.2;
 				if (m.x - margin > width) {
 					m.x = -margin - Math.random() * width * 0.3;
 					m.y = Math.random() * height;
@@ -515,23 +521,28 @@
 					m.wobbleAmp;
 			const drawY = m.y + wobbleY;
 
-			// Radial gradient — alpha IS the blur. Inner stop is ~75% of radius
-			// so the center is dense and the falloff is smooth.
+			// Radial gradient — alpha IS the blur. Inner stop is ~40% of radius
+			// so the center is dense and the falloff is smooth. Lightness is
+			// kept low (48–58%) so mists read as a subtle dark veil rather
+			// than bright white clouds — they should whisper, not shout.
 			const cx = m.x;
 			const cy = drawY;
 			const r = m.r;
 			const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-			grad.addColorStop(0, "hsla(" + m.hue + ",35%,82%," + m.alpha.toFixed(3) + ")");
-			grad.addColorStop(0.4, "hsla(" + m.hue + ",30%,78%," + (m.alpha * 0.6).toFixed(3) + ")");
-			grad.addColorStop(1, "hsla(" + m.hue + ",25%,72%,0)");
+			grad.addColorStop(0, "hsla(" + m.hue + ",28%,58%," + m.alpha.toFixed(3) + ")");
+			grad.addColorStop(0.4, "hsla(" + m.hue + ",25%,52%," + (m.alpha * 0.6).toFixed(3) + ")");
+			grad.addColorStop(1, "hsla(" + m.hue + ",22%,48%,0)");
 
 			ctx.fillStyle = grad;
-			// Slightly squished ellipse for variety (cheap: scaleX on save/restore)
+			// Horizontal stretch — scale X by stretchX so the radial gradient
+			// becomes a wide horizontal band. fillRect must cover the full
+			// stretched area (r * stretchX on each side) so the gradient
+			// doesn't get clipped at the edges.
 			ctx.save();
 			ctx.translate(cx, cy);
-			ctx.scale(m.squish, 1);
+			ctx.scale(m.stretchX, 1);
 			ctx.translate(-cx, -cy);
-			ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+			ctx.fillRect(cx - r * m.stretchX, cy - r, r * 2 * m.stretchX, r * 2);
 			ctx.restore();
 		}
 
