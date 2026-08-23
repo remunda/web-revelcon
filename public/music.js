@@ -10,14 +10,21 @@ import * as Tonal from "https://esm.sh/tonal@6";
 import * as Tone from "https://esm.sh/tone@14";
 
 // ---------- Config ----------
+// All chords are diatonic to C major (Am7 = vi of C, etc.). Sharing the same
+// scale makes every transition smooth — bells ring as one melody, not four
+// unrelated groups. Each progression uses a classic pop cadence so the ear
+// recognises the patterns instantly.
 const PROGRESSIONS = [
-	["Em9",  "Dm9",    "Cmaj7",  "Bbmaj7"],  // mysterious opener (Em -> Dm)
-	["Dm9",  "Cmaj7",  "Bbmaj7", "Gm9"],     // classic descent
-	["Dm9",  "Am9",    "Fmaj7",  "Gm9"],     // wistful
-	["Dm9",  "Gm9",    "Cmaj7",  "Fmaj7"],   // circular moll -> dur
+	["G7",    "Am7",   "Em7",   "Cmaj7"],  // I–V–vi–IV (Axis of Awesome)
+	["Am7",   "Fmaj7", "Cmaj7", "G7"],     // vi–IV–I–V  (Despacito feel)
+	["Dm7",   "G7",    "Cmaj7", "Am7"],    // ii–V–I–vi  (smooth jazz lilt)
+	["Cmaj7", "Am7",   "Fmaj7", "G7"],     // I–vi–IV–V  (Wonderful Tonight)
 ];
-const BPM = 70;
-const CHORD_SEC = 18;            // each chord holds this long
+// BPM tuned so one bar = exactly one chord. The groove runs ONCE per chord,
+// then the harmony steps to the next chord in the progression array —
+// no looping, just one bar per harmonic step.
+const BPM = 72;
+const CHORD_SEC = (60 / BPM) * 4; // = 1 bar ≈ 3.33s
 const OCTAVE = 5;
 const VEL = 0.32;
 const TARGET_GAIN = 0.22;        // master gain — distant feel
@@ -25,15 +32,23 @@ const FADE_IN_SEC = 10;          // slow fade-in
 const NOTE_LEN = "4n";           // each bell rings ~half the gap -> mild overlap
 const START_DELAY_SEC = 0.6;     // grace period after text appears
 
-// Rhythm pattern: irregular spacing in seconds (faster than before).
-// Mix of short bursts (0.32s) and long pauses (1.7s).
-const RHYTHM = [0.65, 0.32, 1.00, 0.65, 1.70, 0.32, 1.00, 0.65,
-                0.32, 0.65, 1.70, 1.00, 0.65, 0.32, 1.00, 0.65,
-                0.32, 1.00];
-
-// Arpeggio pattern: indices over chord tones, 18-step melodic line.
-// Includes leaps to chord tone 4 (the 7th / 9th) for melodic phrasing.
-const ARP_PATTERN = [0, 1, 2, 3, 4, 3, 2, 1, 0, 1, 2, 3, 4, 3, 2, 1, 2, 1];
+// ---------- Groove (single) ----------
+// ---------- Groove (single, sophisticated) ----------
+// 4/4 bossa-nova ostinato: 16ths, 8ths and 4n mixed for micro-syncopation.
+// Notes outline the chord as root-3-5-3-7-3-5-root, with one sixteenth pushed
+// ahead of beat 3 (the "anticipated" ornament) — that's the hook. A long 4n
+// on beat 3 leaves silence for the reverb to breathe.
+const quartersToBeat = (i) => i / 4;
+const GROOVE = [
+	{ beat: quartersToBeat(0.00), idx: 0, vel: 1.00, len: "8n" },   // 1
+	{ beat: quartersToBeat(0.50), idx: 2, vel: 0.55, len: "8n" },   // &
+	{ beat: quartersToBeat(1.00), idx: 4, vel: 0.85, len: "8n" },   // 2
+	{ beat: quartersToBeat(1.50), idx: 2, vel: 0.55, len: "8n" },   // &
+	{ beat: quartersToBeat(2.00), idx: 3, vel: 0.90, len: "4n" },   // 3 (long note)
+	{ beat: quartersToBeat(2.75), idx: 4, vel: 0.70, len: "16n" },  // anticipated 16th before 3 (syncopa)
+	{ beat: quartersToBeat(3.00), idx: 0, vel: 1.00, len: "8n" },   // 4 (kořen, nový cyklus)
+	{ beat: quartersToBeat(3.50), idx: 2, vel: 0.55, len: "8n" },   // &
+];
 
 // ---------- Audio graph ----------
 const reverb = new Tone.Reverb({
@@ -86,7 +101,10 @@ let started = false;
 
 function chordNotesFor(name) {
 	const chord = Tonal.Chord.get(name);
-	if (!chord.notes || chord.notes.length === 0) return [];
+	if (!chord || !chord.notes || chord.notes.length === 0) {
+		console.warn("[music] chord parse failed for:", name, chord);
+		return [];
+	}
 	return chord.notes.map((n) => Tonal.Note.pitchClass(n) + OCTAVE);
 }
 
@@ -99,13 +117,14 @@ function pickProgression() {
 	return next;
 }
 
-function setProgression(prog) {
+function setProgression(prog) {	
 	currentProgression = prog;
 	chordIdx = 0;
 	setChord(prog[0]);
 }
 
 function setChord(name) {
+	console.log(name);
 	chordNotes = chordNotesFor(name);
 }
 
@@ -122,19 +141,28 @@ Tone.Transport.scheduleRepeat(() => {
 	}
 }, CHORD_SEC);
 
-// Arpeggio: irregular rhythm over ARP_PATTERN indices.
+// ---------- Groove-driven scheduler ----------
+// Each scheduled tick advances one bar (4/4). Inside the bar we walk the
+// current groove in time order and trigger each note at its absolute beat.
+// If a note's beat falls past the bar's end, drop it (the next bar will
+// One fixed groove plays forever; the scheduler triggers it every bar (4/4).
+// CHORD_SEC = 9s and BPM 72 land exactly 3 bars per chord, so the harmony
+// steps in lockstep with the rhythm.
+
+const secondsPerBar = (60 / BPM) * 4;
+
 Tone.Transport.scheduleRepeat((time) => {
 	if (chordNotes.length === 0) return;
-	let t = time;
-	for (let i = 0; i < RHYTHM.length; i++) {
-		const idx = ARP_PATTERN[i % ARP_PATTERN.length] % chordNotes.length;
+	const barEnd = time + secondsPerBar;
+	for (const step of GROOVE) {
+		const noteTime = time + step.beat * secondsPerBar;
+		if (noteTime >= barEnd) break;
+		const idx = step.idx % chordNotes.length;
 		const note = chordNotes[idx];
-		const vel = VEL * (0.85 + Math.random() * 0.25);
-		const jitter = (Math.random() - 0.5) * 0.06;
-		bell.triggerAttackRelease(note, NOTE_LEN, t + jitter, vel);
-		t += RHYTHM[i];
+		if (!note) continue;
+		bell.triggerAttackRelease(note, step.len, noteTime, VEL * step.vel);
 	}
-}, CHORD_SEC);
+}, secondsPerBar);
 
 // Initialize with the first chord of the first progression.
 setProgression(PROGRESSIONS[0]);
@@ -237,10 +265,15 @@ function unlockAudio() {
 	// Tone.start() returns a promise that resolves once the context is running.
 	// We mark audioUnlocked only AFTER it resolves, so tryStart() never runs
 	// against a suspended AudioContext (which silently fails).
-	Tone.start().then(() => {
-		audioUnlocked = true;
-		tryStart();
-	});
+	Tone.start()
+		.then(() => {
+			console.log("[music] AudioContext running");
+			audioUnlocked = true;
+			tryStart();
+		})
+		.catch((e) => {
+			console.error("[music] Tone.start failed:", e);
+		});
 }
 
 async function startPlayback() {
@@ -254,11 +287,27 @@ async function tryStart() {
 	if (!audioUnlocked || !playbackReady) return;
 	try {
 		await reverb.generate();
-	} catch (_) {
-		// If IR generation fails for any reason, continue without it.
+	} catch (e) {
+		console.error("[music] reverb.generate failed:", e);
 	}
 	// Re-initialize chord (Tonal loaded asynchronously via ESM)
 	setProgression(PROGRESSIONS[0]);
+	console.log(
+		"[music] tryStart: chordNotes=",
+		chordNotes,
+		" progression[0]=",
+		PROGRESSIONS[0]
+	);
+	// If Tonal wasn't ready yet, chordNotes is empty — retry briefly.
+	for (let i = 0; i < 20 && chordNotes.length === 0; i++) {
+		await new Promise((r) => setTimeout(r, 100));
+		setChord(PROGRESSIONS[0][0]);
+		console.log("[music] chordNotes retry", i, chordNotes);
+	}
+	if (chordNotes.length === 0) {
+		console.error("[music] chordNotes stayed empty — Tonal probably failed");
+		return;
+	}
 	Tone.Transport.start();
 	started = true;
 	// Fade-in
@@ -325,28 +374,3 @@ function scheduleStartOnUnlock() {
 	setTimeout(startPlayback, 50);
 }
 
-// ---------- Click-on-star = random bell ping ----------
-// Plays one random note from the current chord. Higher velocity, shorter
-// envelope than the ambient bells so it feels like a "ping" on top.
-function playStarPing() {
-	if (!started || chordNotes.length === 0) return;
-	const note = chordNotes[Math.floor(Math.random() * chordNotes.length)];
-	bell.triggerAttackRelease(note, "8n", Tone.now(), 0.55);
-}
-
-// Listen for clicks on the stars canvas — each click spawns a star in
-// main.js AND triggers a bell ping here. Two listeners, one event, no
-// cross-module plumbing needed.
-const canvas = document.getElementById("stars");
-if (canvas) {
-	canvas.addEventListener("click", () => {
-		if (!started) {
-			// First click on canvas also acts as the unlock gesture.
-			unlockAudio();
-			scheduleStartOnUnlock();
-		}
-		playStarPing();
-	});
-}
-
-bootWhenTextVisible();

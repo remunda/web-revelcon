@@ -89,7 +89,8 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 #### 5. Adaptive performance tiers
 - Detection: `navigator.userAgent` mobile regex, `navigator.deviceMemory ≤ 2`, `navigator.hardwareConcurrency ≤ 2` → start on `mid` tier.
 - Three tiers — `high` (260 stars, DPR 1.5, glow, 12 twinkle FPS), `mid` (180 stars, DPR 1.25, no glow, 8 twinkle FPS), `low` (110 stars, DPR 1, no glow, 5 twinkle FPS).
-- FPS sampler (1 s window) downgrades tier if FPS < 35 for 2 consecutive samples; upgrades back if FPS > 55 for 4 consecutive samples on non-low-end hardware.
+- FPS sampler (1 s window) downgrades tier if FPS < 25 for 3 consecutive samples; upgrades back if FPS > 55 for 4 consecutive samples on non-low-end hardware.
+- **Warm-up grace period**: no tier changes during the first 8 s after page load. This prevents first-paint / font-load / GC-pause FPS dips from wrongly downgrading the tier and visibly removing stars.
 - All tier transitions call `applySize()` so DPR resyncs the canvas backing store.
 
 #### 6. Animated text sequence before the title
@@ -99,11 +100,15 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 - Each `.line` is `position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)` and centred within the container.
 
 #### 7. Hero title "RevelCON"
-- `<h1 class="title">` uses `font-family: var(--font-display)`.
-- `font-size: clamp(5.5rem, 20vw, 16rem)`, `letter-spacing: 0.04em`, `white-space: nowrap`.
-- Gold gradient text fill (`#fff8dc → #f5e6a8 → #d4a857 → #a37a2c`) via `background-clip: text`.
-- Two-stage animation: `titleReveal` 7 s starting at 6.5 s (opacity 0 → 1, scale 0.96 → 1, blur 20 px → 0, cubic-bezier easing), then perpetual `glow` 4 s alternate starting at 13.7 s.
-- After title, `<p class="more-info">více informací brzy</p>` fades in via the same `fogReveal` 7 s starting at 7 s, positioned `clamp(6rem, 15vw, 11rem)` below the title.
+- `<h1 class="title">` contains an inline `<svg class="title-svg">` with `viewBox="0 0 800 200"` and `preserveAspectRatio="xMidYMid meet"`.
+- Each letter is a separate `<path>` element (Stoke glyph converted to outlines via `fontTools.pens.svgPathPen` in `generate-logo.py`). No font is downloaded at runtime — the SVG is self-contained.
+- Wave: each path has a hand-tuned `transform="translate(x y) scale(s -s)"` where `y` follows a sinusoid (amplitude 10 px, first letter at baseline, peak in middle, last letter back at baseline).
+- Gold gradient fill (`#fff8dc → #f5e6a8 → #a37a2c`) via inline `<linearGradient id="titleGold">` applied to the wrapping `<g fill="url(#titleGold)">`. Soft glow via inline `<filter id="titleGlow">` (Gaussian blur stdDeviation 0.8 + feMerge).
+- `.title` is sized `width: min(92vw, 1100px)` with `aspect-ratio: 800 / 200` so the SVG scales proportionally on any viewport. Mobile breakpoints tighten width to `94vw` (≤480 px) and `96vw` (≤360 px).
+- Two-stage animation: `titleReveal` 7 s starting at 49 s (opacity 0 → 1, scale 0.96 → 1, blur 20 px → 0, cubic-bezier easing), then perpetual `glow` 4 s alternate starting at 56.2 s.
+- After title, `<p class="more-info">více informací brzy</p>` fades in via the same `fogReveal` 7 s starting at 49.5 s, positioned `clamp(6rem, 15vw, 11rem)` below the title.
+- `aria-label="Revelcon"` on the `<h1>` keeps the title accessible to screen readers (the SVG itself is `role="img"`).
+- To regenerate paths after editing `generate-logo.py`: `python3 generate-logo.py` (requires `fontTools`; reads `/tmp/opencode/stoke/Stoke.ttf`).
 
 #### 8. Typography
 - Two CSS variables defined in `:root`:

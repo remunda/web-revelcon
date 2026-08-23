@@ -296,15 +296,15 @@ body {
    fogReveal: 7s total — first ~2.1s dissolves in through fog, then holds
    sharp and readable for the remaining ~4.9s.
    fogFade: 3s total — first ~1s blurs/fades out, then holds invisible.
-   Stagger of 10s between lines so each line is fully gone (opacity 0)
-   before the next starts dissolving in — no overlap.
+   Stagger of 13s between lines so each line is fully gone (opacity 0)
+   for ~3s before the next starts dissolving in — no overlap, clear pause.
 
    Line 1: reveal 0.0s -> 7.0s, fade 7.0s -> 10.0s (sharp ~2.1s -> 7.0s)
-   Line 2: reveal 10.0s -> 17.0s, fade 17.0s -> 20.0s
-   Line 3: reveal 20.0s -> 27.0s, fade 27.0s -> 30.0s
-   Line 4: reveal 30.0s -> 37.0s, fade 37.0s -> 40.0s
-   Title: reveal starts at 40.0s, takes 7s
-   More-info: reveal starts at 40.5s, takes 7s
+   Line 2: reveal 13.0s -> 20.0s, fade 20.0s -> 23.0s
+   Line 3: reveal 26.0s -> 33.0s, fade 33.0s -> 36.0s
+   Line 4: reveal 39.0s -> 46.0s, fade 46.0s -> 49.0s
+   Title: reveal starts at 49.0s, takes 7s
+   More-info: reveal starts at 49.5s, takes 7s
 
    Notes on fill-mode:
    - fogReveal uses `both` so the 0% keyframe (opacity 0) is held during the
@@ -322,13 +322,13 @@ body {
 	animation-delay: 0s, 7s;
 }
 .line:nth-child(2) {
-	animation-delay: 10s, 17s;
+	animation-delay: 13s, 20s;
 }
 .line:nth-child(3) {
-	animation-delay: 20s, 27s;
+	animation-delay: 26s, 33s;
 }
 .line:nth-child(4) {
-	animation-delay: 30s, 37s;
+	animation-delay: 39s, 46s;
 }
 
 @keyframes titleReveal {
@@ -355,29 +355,19 @@ body {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	margin: 0;
-	font-family: var(--font-display);
-	font-size: clamp(5.5rem, 20vw, 16rem);
-	font-weight: 400;
-	letter-spacing: 0.04em;
-	line-height: 1.1;
-	text-align: center;
-	white-space: nowrap;
-	background: linear-gradient(
-		180deg,
-		#fff8dc 0%,
-		#f5e6a8 35%,
-		#d4a857 75%,
-		#a37a2c 100%
-	);
-	-webkit-background-clip: text;
-	background-clip: text;
-	-webkit-text-fill-color: transparent;
-	color: transparent;
-	text-shadow: 0 0 24px rgba(212, 168, 87, 0.35);
-	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 40s both,
-		glow 4s ease-in-out 47.2s infinite alternate;
+	width: min(92vw, 1100px);
+	aspect-ratio: 800 / 200;
 	user-select: none;
 	opacity: 0;
+	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 49s both,
+		glow 4s ease-in-out 56.2s infinite alternate;
+}
+
+.title-svg {
+	width: 100%;
+	height: 100%;
+	display: block;
+	overflow: visible;
 }
 
 .more-info {
@@ -395,7 +385,7 @@ body {
 	white-space: nowrap;
 	color: rgba(245, 230, 168, 0.95);
 	text-shadow: 0 0 18px rgba(212, 168, 87, 0.3);
-	animation: fogReveal 7s ease-out 40.5s both;
+	animation: fogReveal 7s ease-out 49.5s both;
 	opacity: 0;
 	pointer-events: none;
 }
@@ -439,12 +429,7 @@ body {
 		overflow-wrap: break-word;
 	}
 	.title {
-		font-size: clamp(5rem, 20vw, 8rem);
-		line-height: 1.05;
-		letter-spacing: 0.03em;
-		white-space: normal;
-		max-width: 92vw;
-		overflow-wrap: break-word;
+		width: min(94vw, 1100px);
 	}
 	.more-info {
 		font-size: clamp(2rem, 7vw, 2.8rem);
@@ -458,7 +443,7 @@ body {
 /* Extra-narrow phones */
 @media (max-width: 360px) {
 	.title {
-		font-size: clamp(4rem, 18vw, 6.5rem);
+		width: min(96vw, 1100px);
 	}
 	.more-info {
 		font-size: clamp(1.7rem, 6.5vw, 2.4rem);

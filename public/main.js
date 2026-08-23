@@ -29,6 +29,11 @@
 	let lowSince = 0;
 	let goodSince = 0;
 	let lastAdapt = 0;
+	// Grace period: don't downgrade during warm-up (fonts, GC, first paint).
+	// Without this, a brief FPS dip in the first few seconds wrongly downgrades
+	// the tier and visibly removes stars from the field.
+	const ADAPT_GRACE_MS = 8000;
+	const bootTime = performance.now();
 
 	const stars = [];
 	const maxStars = TIER.high.stars;
@@ -345,11 +350,18 @@
 		if (now - lastAdapt < 2000) return;
 		lastAdapt = now;
 
+		// Don't downgrade during warm-up — first paint, font load, GC pause
+		// can briefly drop FPS even on fast hardware. Downgrading then would
+		// visibly remove stars from the field.
+		if (now - bootTime < ADAPT_GRACE_MS) return;
+
 		const avgFps = fpsValue;
-		if (avgFps < 35 && currentTier !== TIER.low) {
+		// Stricter downgrade threshold (25 instead of 35) so brief dips don't
+		// trigger a tier change. Upgrade threshold stays at 55.
+		if (avgFps < 25 && currentTier !== TIER.low) {
 			lowSince++;
 			goodSince = 0;
-			if (lowSince >= 2) {
+			if (lowSince >= 3) {
 				currentTier = currentTier === TIER.high ? TIER.mid : TIER.low;
 				lowSince = 0;
 				dpr = currentTier.dpr;

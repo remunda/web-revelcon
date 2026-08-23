@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Revelcon Logo
+  - Font: Stoke (Google Fonts)
+  - Wave: subtle arc, first letter at baseline, peak in middle
+  - Margin: 10% on all sides (viewBox 800x200, content within 80-720 x 20-180)
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+  <defs>
+    <style type="text/css">
+      @import url('https://fonts.googleapis.com/css2?family=Stoke&amp;display=swap');
+      .letter {
+        font-family: 'Stoke', 'Times New Roman', serif;
+        font-size: 100px;
+        fill: url(#goldGradient);
+      }
+    </style>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff8dc"/>
+      <stop offset="50%" stop-color="#f5e6a8"/>
+      <stop offset="100%" stop-color="#a37a2c"/>
+    </linearGradient>
+    <filter id="glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="0.8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#glow)">
+    <text class="letter" x="180" y="120">R</text>
+    <text class="letter" x="235" y="116">e</text>
+    <text class="letter" x="290" y="112">v</text>
+    <text class="letter" x="345" y="110">e</text>
+    <text class="letter" x="400" y="110">l</text>
+    <text class="letter" x="455" y="112">c</text>
+    <text class="letter" x="510" y="116">o</text>
+    <text class="letter" x="565" y="120">n</text>
+  </g>
+</svg>
