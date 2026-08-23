@@ -81,48 +81,96 @@
 		const n = trail.length;
 		// Index 0 = nejstarší bod (konec stopy), n-1 = aktuální pozice kurzoru.
 		// Stárím → nižší alpha → rozplývání od konce.
+
+		// Vyhlazené řídicí body pro Bézierovy křivky.
+		// Catmull–Rom → kubický Bézier: mezi každými dvěma sousedními body
+		// (p1, p2) se kontrolní body odvodí z (p0, p3) tak, aby křivka
+		// procházela plynule přes p1 a p2 bez zubů.
+		const pts = trail;
+		const ctrl = new Array(n);
+		for (let i = 0; i < n; i++) {
+			const p0 = pts[i === 0 ? 0 : i - 1];
+			const p1 = pts[i];
+			const p2 = pts[i === n - 1 ? n - 1 : i + 1];
+			const p3 = pts[i >= n - 2 ? n - 1 : i + 2];
+			ctrl[i] = {
+				c1x: p1.x + (p2.x - p0.x) / 6,
+				c1y: p1.y + (p2.y - p0.y) / 6,
+				c2x: p2.x - (p3.x - p1.x) / 6,
+				c2y: p2.y - (p3.y - p1.y) / 6,
+			};
+		}
+
+		// t = 0 na konci ocasu, t = 1 u špičky (aktuální pozice kurzoru).
+		// Šířka a alpha rostou s t — stopa se zužuje a bledne ke konci.
+		const widthAt = (t) => 0.4 + t * t * 9.6; // 0.4 px → 10 px
+		const alphaAt = (t) => t * t * 0.95; // 0 → 0.95
+
 		ctx.lineCap = "round";
 		ctx.lineJoin = "round";
 
 		// 1) Měkký glow pod hlavní čárou — několik tlustších, průhlednějších průchodů.
+		// Každý průchod kreslíme po segmentech, aby se zužoval a bledl ke konci.
 		for (let pass = 3; pass >= 1; pass--) {
-			const widthBase = 14 - pass * 3.5; // 10.5, 7, 3.5
+			const widthScale = 1 + pass * 0.6; // 2.8, 2.2, 1.6 — glow je širší než jádro
 			const alphaScale = 0.18 / pass; // 0.06, 0.09, 0.18
-			ctx.lineWidth = widthBase;
 			ctx.strokeStyle = "rgba(120, 170, 255, " + alphaScale.toFixed(3) + ")";
-			ctx.beginPath();
-			for (let i = 0; i < n; i++) {
-				const p = trail[i];
-				// alpha roste s indexem: starší body (i malé) jsou průhlednější.
-				const a = (i / (n - 1)) * 0.55 + 0.05;
-				if (a < 0.04) continue;
-				ctx.globalAlpha = Math.min(1, a);
-				if (i === 0) ctx.moveTo(p.x, p.y);
-				else ctx.lineTo(p.x, p.y);
+			for (let i = 0; i < n - 1; i++) {
+				const t0 = i / (n - 1);
+				const t1 = (i + 1) / (n - 1);
+				const w0 = widthAt(t0) * widthScale;
+				const w1 = widthAt(t1) * widthScale;
+				const a0 = alphaAt(t0) * 0.9;
+				const a1 = alphaAt(t1) * 0.9;
+				if (a1 < 0.02) continue;
+				ctx.lineWidth = w1;
+				ctx.globalAlpha = a1;
+				ctx.beginPath();
+				ctx.moveTo(pts[i].x, pts[i].y);
+				const c = ctrl[i];
+				ctx.bezierCurveTo(c.c1x, c.c1y, c.c2x, c.c2y, pts[i + 1].x, pts[i + 1].y);
+				ctx.stroke();
+				// w0/a0 se využijí v další iteraci — gradient přes segment
+				// zajišťuje plynulý přechod, takže stačí hodnoty na koncovém bodě.
+				void w0;
+				void a0;
 			}
-			ctx.stroke();
 		}
+		ctx.globalAlpha = 1;
 
 		// 2) Hlavní jasné jádro — modrá s bílým nádechem u špičky.
+		// Kreslíme po segmentech s klesající šířkou a alphou ke konci.
+		for (let i = 0; i < n - 1; i++) {
+			const t0 = i / (n - 1);
+			const t1 = (i + 1) / (n - 1);
+			const w0 = widthAt(t0);
+			const w1 = widthAt(t1);
+			const a0 = alphaAt(t0);
+			const a1 = alphaAt(t1);
+			if (a1 < 0.02) continue;
+			ctx.lineWidth = w1;
+			ctx.globalAlpha = a1;
+			// Gradient přes aktuální segment — barva se mění podél stopy.
+			const grad = ctx.createLinearGradient(
+				pts[i].x,
+				pts[i].y,
+				pts[i + 1].x,
+				pts[i + 1].y
+			);
+			grad.addColorStop(0, "rgba(80, 140, 255, " + a0.toFixed(3) + ")");
+			grad.addColorStop(1, "rgba(220, 235, 255, " + a1.toFixed(3) + ")");
+			ctx.strokeStyle = grad;
+			ctx.beginPath();
+			ctx.moveTo(pts[i].x, pts[i].y);
+			const c = ctrl[i];
+			ctx.bezierCurveTo(c.c1x, c.c1y, c.c2x, c.c2y, pts[i + 1].x, pts[i + 1].y);
+			ctx.stroke();
+			void w0;
+		}
 		ctx.globalAlpha = 1;
-		ctx.lineWidth = 2.2;
-		const grad = ctx.createLinearGradient(
-			trail[0].x,
-			trail[0].y,
-			trail[n - 1].x,
-			trail[n - 1].y
-		);
-		grad.addColorStop(0, "rgba(80, 140, 255, 0)");
-		grad.addColorStop(0.55, "rgba(140, 190, 255, 0.85)");
-		grad.addColorStop(1, "rgba(220, 235, 255, 1)");
-		ctx.strokeStyle = grad;
-		ctx.beginPath();
-		ctx.moveTo(trail[0].x, trail[0].y);
-		for (let i = 1; i < n; i++) ctx.lineTo(trail[i].x, trail[i].y);
-		ctx.stroke();
 
 		// 3) Jiskřička na špičce u aktuálního bodu.
-		const head = trail[n - 1];
+		const head = pts[n - 1];
 		ctx.fillStyle = "rgba(230, 240, 255, 0.95)";
 		ctx.beginPath();
 		ctx.arc(head.x, head.y, 3, 0, Math.PI * 2);
@@ -131,8 +179,6 @@
 		ctx.beginPath();
 		ctx.arc(head.x, head.y, 8, 0, Math.PI * 2);
 		ctx.fill();
-
-		ctx.globalAlpha = 1;
 	}
 
 	function rand(min, max) {
