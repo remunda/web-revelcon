@@ -130,11 +130,11 @@ body {
 .clouds {
 	position: fixed;
 	inset: -15%;
-	z-index: 1;
+	z-index: 0;
 	pointer-events: none;
 	overflow: hidden;
 	mix-blend-mode: screen;
-	opacity: 0.85;
+	opacity: 1;
 }
 
 .cloud {
@@ -145,23 +145,23 @@ body {
 	background:
 		radial-gradient(
 			ellipse 38% 55% at 28% 50%,
-			rgba(170, 190, 230, 0.18) 0%,
-			rgba(170, 190, 230, 0) 70%
+			rgba(190, 210, 245, 0.45) 0%,
+			rgba(190, 210, 245, 0) 70%
 		),
 		radial-gradient(
 			ellipse 32% 50% at 55% 45%,
-			rgba(140, 160, 210, 0.16) 0%,
-			rgba(140, 160, 210, 0) 70%
+			rgba(160, 180, 225, 0.4) 0%,
+			rgba(160, 180, 225, 0) 70%
 		),
 		radial-gradient(
 			ellipse 28% 45% at 78% 55%,
-			rgba(180, 200, 240, 0.14) 0%,
-			rgba(180, 200, 240, 0) 70%
+			rgba(200, 215, 245, 0.38) 0%,
+			rgba(200, 215, 245, 0) 70%
 		),
 		radial-gradient(
 			ellipse 45% 60% at 50% 60%,
-			rgba(120, 140, 200, 0.12) 0%,
-			rgba(120, 140, 200, 0) 75%
+			rgba(140, 160, 215, 0.35) 0%,
+			rgba(140, 160, 215, 0) 75%
 		);
 	filter: blur(40px);
 	will-change: transform, opacity;
@@ -291,19 +291,20 @@ body {
 	}
 }
 
-/* Sequence: 4 lines, each fully readable (sharp, no blur) for ~5s.
-   fogReveal: 8s total — first ~2.4s dissolves in through fog, then holds
-   sharp and readable for the remaining ~5.6s.
-   fogFade: 4s total — first ~1.2s blurs/fades out, then holds invisible.
-   Stagger of 4s between lines so each line is fully visible (sharp) for
-   at least 4s before the next starts dissolving in.
+/* Sequence: 4 lines, each fully readable (sharp, no blur) for ~5s,
+   then a clear blank pause before the next line emerges.
+   fogReveal: 7s total — first ~2.1s dissolves in through fog, then holds
+   sharp and readable for the remaining ~4.9s.
+   fogFade: 3s total — first ~1s blurs/fades out, then holds invisible.
+   Stagger of 10s between lines so each line is fully gone (opacity 0)
+   before the next starts dissolving in — no overlap.
 
-   Line 1: reveal 0.0s -> 8.0s, fade 8.0s -> 12.0s (sharp ~2.4s -> 8.0s)
-   Line 2: reveal 4.0s -> 12.0s, fade 12.0s -> 16.0s
-   Line 3: reveal 8.0s -> 16.0s, fade 16.0s -> 20.0s
-   Line 4: reveal 12.0s -> 20.0s, fade 20.0s -> 24.0s
-   Title: reveal starts at 16.0s, takes 7s
-   More-info: reveal starts at 16.5s, takes 7s
+   Line 1: reveal 0.0s -> 7.0s, fade 7.0s -> 10.0s (sharp ~2.1s -> 7.0s)
+   Line 2: reveal 10.0s -> 17.0s, fade 17.0s -> 20.0s
+   Line 3: reveal 20.0s -> 27.0s, fade 27.0s -> 30.0s
+   Line 4: reveal 30.0s -> 37.0s, fade 37.0s -> 40.0s
+   Title: reveal starts at 40.0s, takes 7s
+   More-info: reveal starts at 40.5s, takes 7s
 
    Notes on fill-mode:
    - fogReveal uses `both` so the 0% keyframe (opacity 0) is held during the
@@ -313,21 +314,21 @@ body {
      flash all lines visible at t=0.
 */
 .line {
-	animation: fogReveal 8s ease-out both,
-		fogFade 4s ease-in forwards;
+	animation: fogReveal 7s ease-out both,
+		fogFade 3s ease-in forwards;
 }
 
 .line:nth-child(1) {
-	animation-delay: 0s, 8s;
+	animation-delay: 0s, 7s;
 }
 .line:nth-child(2) {
-	animation-delay: 4s, 12s;
+	animation-delay: 10s, 17s;
 }
 .line:nth-child(3) {
-	animation-delay: 8s, 16s;
+	animation-delay: 20s, 27s;
 }
 .line:nth-child(4) {
-	animation-delay: 12s, 20s;
+	animation-delay: 30s, 37s;
 }
 
 @keyframes titleReveal {
@@ -373,8 +374,8 @@ body {
 	-webkit-text-fill-color: transparent;
 	color: transparent;
 	text-shadow: 0 0 24px rgba(212, 168, 87, 0.35);
-	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 16s both,
-		glow 4s ease-in-out 23.2s infinite alternate;
+	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 40s both,
+		glow 4s ease-in-out 47.2s infinite alternate;
 	user-select: none;
 	opacity: 0;
 }
@@ -394,7 +395,7 @@ body {
 	white-space: nowrap;
 	color: rgba(245, 230, 168, 0.95);
 	text-shadow: 0 0 18px rgba(212, 168, 87, 0.3);
-	animation: fogReveal 7s ease-out 16.5s both;
+	animation: fogReveal 7s ease-out 40.5s both;
 	opacity: 0;
 	pointer-events: none;
 }
