@@ -10,11 +10,14 @@
 		(navigator.deviceMemory && navigator.deviceMemory <= 2) ||
 		(navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
 
-	// Tiered limits — adjust dynamically via FPS
+	// Tiered limits — adjust dynamically via FPS.
+	// Star counts are intentionally modest: the field should feel like a quiet
+	// night sky, not a snowstorm. Twinkle + occasional "fairytale" flashes
+	// carry the magic, not raw density.
 	const TIER = {
-		high: { stars: 260, dpr: 1.5, glow: true, twinkleFps: 12 },
-		mid: { stars: 180, dpr: 1.25, glow: false, twinkleFps: 8 },
-		low: { stars: 110, dpr: 1, glow: false, twinkleFps: 5 },
+		high: { stars: 140, clouds: 9, dpr: 1.5, glow: true, shine: true, twinkleFps: 12 },
+		mid: { stars: 100, clouds: 6, dpr: 1.25, glow: false, shine: false, twinkleFps: 8 },
+		low: { stars: 70, clouds: 3, dpr: 1, glow: false, shine: false, twinkleFps: 5 },
 	};
 
 	let currentTier = isLowEnd ? TIER.mid : TIER.high;
@@ -37,6 +40,55 @@
 
 	const stars = [];
 	const maxStars = TIER.high.stars;
+
+	// ---------- Mist / cloud field ----------
+	// Slow-drifting soft blobs that sit BEHIND the stars. Three depth layers
+	// (1 = far/small/dim/slow, 2 = mid, 3 = near/large/bright/fast) so they
+	// feel like a layered atmosphere rather than a flat overlay.
+	//
+	// Each mist is rendered as a radial gradient blob — the alpha falloff
+	// IS the blur. No `filter: blur()` post-processing, no `mix-blend-mode`,
+	// no offscreen canvas — just `createRadialGradient` + `fillRect`. Cheap.
+	const mists = [];
+
+	function makeMist(layer) {
+		// Depth-based ranges — tuned so the field reads as atmospheric depth.
+		const cfg =
+			layer === 1
+				? { rMin: 0.18, rMax: 0.32, vMin: 4, vMax: 9, aMin: 0.18, aMax: 0.32 }
+				: layer === 2
+					? { rMin: 0.28, rMax: 0.48, vMin: 7, vMax: 14, aMin: 0.22, aMax: 0.38 }
+					: { rMin: 0.4, rMax: 0.65, vMin: 11, vMax: 20, aMin: 0.26, aMax: 0.44 };
+		const r = rand(cfg.rMin, cfg.rMax); // radius as fraction of min(width,height)
+		const base = Math.min(width, height);
+		return {
+			layer,
+			x: rand(-0.2, 1.2) * width,
+			y: rand(0, height),
+			r: r * base, // absolute px
+			vx: rand(cfg.vMin, cfg.vMax) / 60, // px/frame at 60fps → very slow
+			alpha: rand(cfg.aMin, cfg.aMax),
+			// Slight vertical wobble — keeps the field from feeling like
+			// a conveyor belt. Amplitude in px, period in seconds.
+			wobbleAmp: rand(8, 28),
+			wobblePeriod: rand(22, 45),
+			wobblePhase: Math.random() * Math.PI * 2,
+			// Hue: cool blues / violets so they harmonize with the night sky.
+			hue: rand(205, 245),
+			// Slight aspect stretch so they don't all look like perfect circles.
+			squish: rand(0.7, 1.3),
+		};
+	}
+
+	function buildMists(count) {
+		mists.length = 0;
+		// Distribute roughly evenly across layers (1/3, 1/3, 1/3).
+		const perLayer = Math.max(1, Math.floor(count / 3));
+		const remainder = count - perLayer * 3;
+		for (let i = 0; i < perLayer + (remainder > 0 ? 1 : 0); i++) mists.push(makeMist(1));
+		for (let i = 0; i < perLayer + (remainder > 1 ? 1 : 0); i++) mists.push(makeMist(2));
+		for (let i = 0; i < perLayer; i++) mists.push(makeMist(3));
+	}
 
 	// Pre-computed twinkle table (256 entries, one full sine cycle)
 	const TWINKLE_TABLE_SIZE = 256;
@@ -255,6 +307,11 @@
 	}
 
 	function makeStar(layer, x, y) {
+		// Twinkle model: each star has a base brightness and an amplitude.
+		// The render loop combines a slow sine (the "breath") with a faster
+		// sine (the "shimmer") so the result never looks like a metronome.
+		// Some stars are "quiet" (low amp), some are "twitchy" (high amp).
+		const twitchy = Math.random() < 0.25;
 		return {
 			x: x !== undefined ? x : Math.random() * width,
 			y: y !== undefined ? y : Math.random() * height,
@@ -265,11 +322,22 @@
 			z: layer,
 			r: rand(0.6, 2) * (0.4 + layer * 0.4),
 			speed: rand(0.02, 0.12) * (0.4 + layer * 0.6),
-			twinkleSpeed: rand(0.005, 0.02),
+			// Two twinkle phases at different speeds → organic, non-repeating feel
 			twinklePhase: Math.random(),
+			twinklePhase2: Math.random(),
+			twinkleSpeed: rand(0.003, 0.012) * (twitchy ? 1.8 : 1),
+			twinkleSpeed2: rand(0.008, 0.025) * (twitchy ? 1.5 : 1),
+			// Base brightness 0.25–0.7, amplitude 0.15–0.4 (twitchy up to 0.55)
+			twinkleBase: rand(0.25, 0.7),
+			twinkleAmp: rand(0.15, 0.4) * (twitchy ? 1.4 : 1),
 			react: rand(0.6, 1.4) * (0.5 + layer * 0.4),
 			hue: rand(200, 230),
 			life: 1,
+			// Fairytale flash: at a random future time, this star briefly
+			// flares bright (like a "twinkle twinkle little star" moment),
+			// then settles back. Decently rare — most stars never flash.
+			flashAt: Math.random() < 0.15 ? performance.now() + rand(4000, 18000) : Infinity,
+			flashDuration: rand(600, 1400),
 		};
 	}
 
@@ -291,6 +359,7 @@
 			const layer = Math.random() < 0.6 ? 1 : Math.random() < 0.85 ? 2 : 3;
 			stars.push(makeStar(layer));
 		}
+		buildMists(currentTier.clouds);
 	}
 
 	function clampCount() {
@@ -366,8 +435,9 @@
 				lowSince = 0;
 				dpr = currentTier.dpr;
 				applySize();
-				// Trim stars if needed
+				// Trim stars and mists if needed
 				while (stars.length > currentTier.stars) stars.shift();
+				buildMists(currentTier.clouds);
 			}
 		} else if (avgFps > 55 && !isLowEnd && currentTier !== TIER.high) {
 			goodSince++;
@@ -377,6 +447,7 @@
 				goodSince = 0;
 				dpr = currentTier.dpr;
 				applySize();
+				buildMists(currentTier.clouds);
 			}
 		} else {
 			goodSince = Math.max(0, goodSince - 1);
@@ -412,6 +483,58 @@
 
 		ctx.clearRect(0, 0, width, height);
 
+		// Capture timestamp once per frame so mrak/star/trail code all
+		// see the same value (and we don't read performance.now() inside
+		// the hot loops).
+		const nowMs = now;
+
+		// ---------- Render mists (behind stars) ----------
+		// Walk far → near so closer mists visually overlap farther ones.
+		// Vertical wobble uses real time so it doesn't lock to frame rate.
+		// Under prefers-reduced-motion we still draw them (so the sky isn't
+		// empty) but skip position updates so they sit perfectly still.
+		const mistTime = nowMs / 1000;
+		for (let i = 0; i < mists.length; i++) {
+			const m = mists[i];
+
+			if (!reduceMotion) {
+				// Horizontal drift — wrap from right back to left with margin
+				// so mists don't visibly "pop in" at the screen edge.
+				m.x += m.vx * (dt * 60); // normalize: vx is per 60fps frame
+				const margin = m.r * 1.2;
+				if (m.x - margin > width) {
+					m.x = -margin - Math.random() * width * 0.3;
+					m.y = Math.random() * height;
+				}
+			}
+
+			// Gentle vertical wobble (skipped under reduced motion)
+			const wobbleY = reduceMotion
+				? 0
+				: Math.sin((mistTime / m.wobblePeriod) * Math.PI * 2 + m.wobblePhase) *
+					m.wobbleAmp;
+			const drawY = m.y + wobbleY;
+
+			// Radial gradient — alpha IS the blur. Inner stop is ~75% of radius
+			// so the center is dense and the falloff is smooth.
+			const cx = m.x;
+			const cy = drawY;
+			const r = m.r;
+			const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+			grad.addColorStop(0, "hsla(" + m.hue + ",35%,82%," + m.alpha.toFixed(3) + ")");
+			grad.addColorStop(0.4, "hsla(" + m.hue + ",30%,78%," + (m.alpha * 0.6).toFixed(3) + ")");
+			grad.addColorStop(1, "hsla(" + m.hue + ",25%,72%,0)");
+
+			ctx.fillStyle = grad;
+			// Slightly squished ellipse for variety (cheap: scaleX on save/restore)
+			ctx.save();
+			ctx.translate(cx, cy);
+			ctx.scale(m.squish, 1);
+			ctx.translate(-cx, -cy);
+			ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+			ctx.restore();
+		}
+
 		// Advance pre-computed twinkle table (much cheaper than Math.sin per star)
 		twinkleFrameAccum += currentTier.twinkleFps * dt;
 		if (twinkleFrameAccum >= 1) {
@@ -420,6 +543,7 @@
 		}
 
 		const drawGlow = currentTier.glow;
+		const drawShine = currentTier.shine;
 
 		for (let i = 0; i < stars.length; i++) {
 			const s = stars[i];
@@ -433,14 +557,41 @@
 			const drawX = s.x;
 			const drawY = s.y;
 
-			// Pre-computed twinkle (no Math.sin in loop)
-			const phaseIndex =
-				((s.twinklePhase + twinkleFrame / TWINKLE_TABLE_SIZE) * TWINKLE_TABLE_SIZE) | 0;
-			const idx = ((phaseIndex % TWINKLE_TABLE_SIZE) + TWINKLE_TABLE_SIZE) % TWINKLE_TABLE_SIZE;
-			const twinkle = twinkleTable[idx];
+			// Two-phase twinkle: slow "breath" + faster "shimmer".
+			// Both phases advance via the pre-computed table so per-star cost
+			// stays at two table lookups + a multiply.
+			const idx1 =
+				(((s.twinklePhase + twinkleFrame / TWINKLE_TABLE_SIZE) * TWINKLE_TABLE_SIZE) | 0) %
+				TWINKLE_TABLE_SIZE;
+			const idx2 =
+				(((s.twinklePhase2 + twinkleFrame / TWINKLE_TABLE_SIZE) * TWINKLE_TABLE_SIZE) | 0) %
+				TWINKLE_TABLE_SIZE;
+			// Map sine [-1,1] → [0,1]
+			const t1 = twinkleTable[idx1] * 2 - 1;
+			const t2 = twinkleTable[idx2] * 2 - 1;
+			// Combine: base + amp * (slow + fast*0.4), clamped.
+			// The 0.4 weight on the fast phase keeps the shimmer subtle.
+			let brightness =
+				s.twinkleBase + s.twinkleAmp * (t1 * 0.6 + t2 * 0.4);
+			brightness = brightness < 0 ? 0 : brightness > 1 ? 1 : brightness;
 
-			const alpha = Math.min(1, (0.6 + twinkle * 0.4) * (0.5 + s.z * 0.25)) * s.life;
-			if (alpha < 0.05) continue;
+			// Fairytale flash: brief bright flare, then back to normal.
+			// Uses a smooth bell curve over flashDuration so it eases in/out.
+			let flashBoost = 0;
+			if (nowMs >= s.flashAt && nowMs < s.flashAt + s.flashDuration) {
+				const t = (nowMs - s.flashAt) / s.flashDuration; // 0..1
+				// Bell: 4*t*(1-t) peaks at 0.5
+				flashBoost = 4 * t * (1 - t) * 0.85;
+				// Schedule next flash far in the future (or never)
+				if (t > 0.99) {
+					s.flashAt = Math.random() < 0.4
+						? nowMs + rand(8000, 25000)
+						: Infinity;
+				}
+			}
+
+			const alpha = Math.min(1, brightness * (0.5 + s.z * 0.25)) * s.life;
+			if (alpha < 0.04) continue;
 
 			// Batch fills by hue — small win on most engines
 			ctx.fillStyle = "hsla(" + s.hue + ",30%,92%," + alpha.toFixed(3) + ")";
@@ -448,12 +599,77 @@
 			ctx.arc(drawX, drawY, s.r, 0, Math.PI * 2);
 			ctx.fill();
 
-			if (drawGlow && s.r > 1.1) {
+			// Glow: soft halo around the star. Two passes — inner core glow
+			// (small, bright) and outer atmospheric glow (wide, faint). Both
+			// use additive `lighter` blend so overlapping halos compose into
+			// a believable bloom instead of just stacking opacity.
+			if (drawGlow && (flashBoost > 0.1 || brightness > 0.75)) {
+				const intensity = flashBoost > 0.1
+					? flashBoost
+					: (brightness - 0.75) * 2.5;
+				// Outer atmospheric halo — wide and very faint.
+				ctx.globalCompositeOperation = "lighter";
 				ctx.fillStyle =
-					"hsla(" + s.hue + ",30%,92%," + (alpha * 0.25).toFixed(3) + ")";
+					"hsla(" + s.hue + ",45%,88%," + (intensity * 0.07).toFixed(3) + ")";
+				ctx.beginPath();
+				ctx.arc(drawX, drawY, s.r * 5.5, 0, Math.PI * 2);
+				ctx.fill();
+				// Inner core glow — tight and brighter.
+				ctx.fillStyle =
+					"hsla(" + s.hue + ",50%,94%," + (intensity * 0.22).toFixed(3) + ")";
 				ctx.beginPath();
 				ctx.arc(drawX, drawY, s.r * 2.4, 0, Math.PI * 2);
 				ctx.fill();
+				ctx.globalCompositeOperation = "source-over";
+			}
+
+			// Star shine: 4-point diffraction cross on the brightest stars
+			// (twitchy peak or fairytale flash). Drawn with `lighter` blend
+			// so the spikes glow over the dark sky. Spikes scale with the
+			// star's radius — small stars get short spikes, bright stars
+			// get long dramatic ones.
+			if (drawShine && (flashBoost > 0.1 || brightness > 0.8)) {
+				const shineIntensity = flashBoost > 0.1
+					? Math.min(1, flashBoost + 0.3)
+					: (brightness - 0.8) * 4;
+				if (shineIntensity > 0.05) {
+					const len = s.r * (12 + shineIntensity * 22);
+					const thick = Math.max(0.4, s.r * 0.35);
+					ctx.globalCompositeOperation = "lighter";
+					// Vertical spike
+					ctx.strokeStyle =
+						"hsla(" + s.hue + ",40%,96%," + (shineIntensity * 0.55).toFixed(3) + ")";
+					ctx.lineWidth = thick;
+					ctx.lineCap = "round";
+					ctx.beginPath();
+					ctx.moveTo(drawX, drawY - len);
+					ctx.lineTo(drawX, drawY + len);
+					ctx.stroke();
+					// Horizontal spike
+					ctx.beginPath();
+					ctx.moveTo(drawX - len, drawY);
+					ctx.lineTo(drawX + len, drawY);
+					ctx.stroke();
+					// Soft secondary spikes (45°) at half length for a richer
+					// diffraction pattern — the classic "star burst" look.
+					if (shineIntensity > 0.5) {
+						const len2 = len * 0.55;
+						ctx.strokeStyle =
+							"hsla(" + s.hue + ",40%,96%," + (shineIntensity * 0.28).toFixed(3) + ")";
+						ctx.lineWidth = thick * 0.7;
+						const c = Math.cos(Math.PI / 4);
+						const s45 = Math.sin(Math.PI / 4);
+						ctx.beginPath();
+						ctx.moveTo(drawX - len2 * c, drawY - len2 * s45);
+						ctx.lineTo(drawX + len2 * c, drawY + len2 * s45);
+						ctx.stroke();
+						ctx.beginPath();
+						ctx.moveTo(drawX - len2 * c, drawY + len2 * s45);
+						ctx.lineTo(drawX + len2 * c, drawY - len2 * s45);
+						ctx.stroke();
+					}
+					ctx.globalCompositeOperation = "source-over";
+				}
 			}
 		}
 

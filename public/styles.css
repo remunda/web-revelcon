@@ -126,93 +126,6 @@ body {
 	cursor: crosshair;
 }
 
-/* Drifting mist / clouds — sits between sky and stars so stars stay sharp on top */
-.clouds {
-	position: fixed;
-	inset: -15%;
-	z-index: 0;
-	pointer-events: none;
-	overflow: hidden;
-	mix-blend-mode: screen;
-	opacity: 1;
-}
-
-.cloud {
-	position: absolute;
-	left: -40%;
-	width: 70vmax;
-	height: 28vmax;
-	background:
-		radial-gradient(
-			ellipse 38% 55% at 28% 50%,
-			rgba(190, 210, 245, 0.45) 0%,
-			rgba(190, 210, 245, 0) 70%
-		),
-		radial-gradient(
-			ellipse 32% 50% at 55% 45%,
-			rgba(160, 180, 225, 0.4) 0%,
-			rgba(160, 180, 225, 0) 70%
-		),
-		radial-gradient(
-			ellipse 28% 45% at 78% 55%,
-			rgba(200, 215, 245, 0.38) 0%,
-			rgba(200, 215, 245, 0) 70%
-		),
-		radial-gradient(
-			ellipse 45% 60% at 50% 60%,
-			rgba(140, 160, 215, 0.35) 0%,
-			rgba(140, 160, 215, 0) 75%
-		);
-	filter: blur(40px);
-	will-change: transform, opacity;
-	animation: cloudDrift linear infinite;
-}
-
-.cloud-1 {
-	top: 8%;
-	transform: scale(0.9);
-	animation-duration: 95s;
-	animation-delay: -10s;
-	opacity: 0.7;
-}
-.cloud-2 {
-	top: 28%;
-	transform: scale(1.15);
-	animation-duration: 140s;
-	animation-delay: -55s;
-	opacity: 0.55;
-}
-.cloud-3 {
-	top: 48%;
-	transform: scale(0.75);
-	animation-duration: 110s;
-	animation-delay: -30s;
-	opacity: 0.8;
-}
-.cloud-4 {
-	top: 65%;
-	transform: scale(1.3);
-	animation-duration: 170s;
-	animation-delay: -90s;
-	opacity: 0.5;
-}
-.cloud-5 {
-	top: 82%;
-	transform: scale(0.85);
-	animation-duration: 125s;
-	animation-delay: -70s;
-	opacity: 0.65;
-}
-
-@keyframes cloudDrift {
-	0% {
-		transform: translate3d(0, 0, 0) scale(var(--cloud-scale, 1));
-	}
-	100% {
-		transform: translate3d(180vw, 0, 0) scale(var(--cloud-scale, 1));
-	}
-}
-
 .center {
 	position: fixed;
 	inset: 0;
@@ -244,7 +157,7 @@ body {
 	margin: 0;
 	font-family: var(--font-base);
 	font-weight: 400;
-	font-size: clamp(1.6rem, 5.2vw, 2.6rem);
+	font-size: clamp(2rem, 6.5vw, 3.2rem);
 	letter-spacing: 0.015em;
 	line-height: 1.35;
 	text-align: center;
@@ -355,7 +268,7 @@ body {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	margin: 0;
-	width: min(92vw, 1100px);
+	width: min(94vw, 1300px);
 	aspect-ratio: 800 / 200;
 	user-select: none;
 	opacity: 0;
@@ -377,7 +290,7 @@ body {
 	transform: translate(-50%, -50%);
 	margin: 0;
 	font-family: var(--font-base);
-	font-size: clamp(2.4rem, 7.5vw, 4rem);
+	font-size: clamp(2.8rem, 8.5vw, 4.5rem);
 	font-weight: 400;
 	letter-spacing: 0.02em;
 	line-height: 1.2;
@@ -414,8 +327,7 @@ body {
 		display: none;
 	}
 	.sky,
-	.sky::after,
-	.cloud {
+	.sky::after {
 		animation: none;
 	}
 }
@@ -423,16 +335,16 @@ body {
 /* Mobile readability tweaks for the thin Italianno script */
 @media (max-width: 480px) {
 	.line {
-		font-size: clamp(1.8rem, 7.5vw, 2.6rem);
+		font-size: clamp(2.2rem, 8.5vw, 3rem);
 		line-height: 1.3;
 		max-width: 92vw;
 		overflow-wrap: break-word;
 	}
 	.title {
-		width: min(94vw, 1100px);
+		width: min(96vw, 1300px);
 	}
 	.more-info {
-		font-size: clamp(2rem, 7vw, 2.8rem);
+		font-size: clamp(2rem, 6.5vw, 2.8rem);
 		top: calc(50% + clamp(5.5rem, 18vw, 8rem));
 		white-space: normal;
 		max-width: 80vw;
@@ -443,10 +355,10 @@ body {
 /* Extra-narrow phones */
 @media (max-width: 360px) {
 	.title {
-		width: min(96vw, 1100px);
+		width: min(98vw, 1300px);
 	}
 	.more-info {
-		font-size: clamp(1.7rem, 6.5vw, 2.4rem);
+		font-size: clamp(1.7rem, 6vw, 2.4rem);
 		top: calc(50% + clamp(5rem, 16vw, 7rem));
 		max-width: 86vw;
 	}

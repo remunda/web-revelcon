@@ -10,19 +10,18 @@ import * as Tonal from "https://esm.sh/tonal@6";
 import * as Tone from "https://esm.sh/tone@14";
 
 // ---------- Config ----------
-// All chords are diatonic to C major (Am7 = vi of C, etc.). Sharing the same
-// scale makes every transition smooth — bells ring as one melody, not four
-// unrelated groups. Each progression uses a classic pop cadence so the ear
-// recognises the patterns instantly.
+// All chords are plain triads in C major (Am = vi of C, F = IV of C, etc.).
+// Triads ring cleaner than 7ths/9ths at the bell register — no muddiness.
+// All four progressions use popular pop cadences the ear recognises instantly.
 const PROGRESSIONS = [
-	["G7",    "Am7",   "Em7",   "Cmaj7"],  // I–V–vi–IV (Axis of Awesome)
-	["Am7",   "Fmaj7", "Cmaj7", "G7"],     // vi–IV–I–V  (Despacito feel)
-	["Dm7",   "G7",    "Cmaj7", "Am7"],    // ii–V–I–vi  (smooth jazz lilt)
-	["Cmaj7", "Am7",   "Fmaj7", "G7"],     // I–vi–IV–V  (Wonderful Tonight)
+	["Am", "F",  "C",  "G"],  // vi–IV–I–V (Despacito, twist)
+	["C",  "G",  "Am", "F"],  // I–V–vi–IV (Let It Be, Oasis)
+	["F",  "G",  "C",  "Am"], // IV–V–I–vi (longing ballad)
+	["C",  "Am", "F",  "G"],  // I–vi–IV–V (Wonderful Tonight)
 ];
 // BPM tuned so one bar = exactly one chord. The groove runs ONCE per chord,
-// then the harmony steps to the next chord in the progression array —
-// no looping, just one bar per harmonic step.
+// then the harmony steps to the next chord — no looping, just one bar per
+// harmonic step. CHORD_SEC == secondsPerBar.
 const BPM = 72;
 const CHORD_SEC = (60 / BPM) * 4; // = 1 bar ≈ 3.33s
 const OCTAVE = 5;
@@ -32,22 +31,18 @@ const FADE_IN_SEC = 10;          // slow fade-in
 const NOTE_LEN = "4n";           // each bell rings ~half the gap -> mild overlap
 const START_DELAY_SEC = 0.6;     // grace period after text appears
 
-// ---------- Groove (single) ----------
-// ---------- Groove (single, sophisticated) ----------
-// 4/4 bossa-nova ostinato: 16ths, 8ths and 4n mixed for micro-syncopation.
-// Notes outline the chord as root-3-5-3-7-3-5-root, with one sixteenth pushed
-// ahead of beat 3 (the "anticipated" ornament) — that's the hook. A long 4n
-// on beat 3 leaves silence for the reverb to breathe.
+// ---------- Groove (single, magical) ----------
+// Magical bell pattern in 4/4: a 5-note descent with deliberate silences
+// so each ring fades before the next lands. The long 2n on beat 3 leaves
+// the biggest silence — that gap is what makes distant bells feel "magical"
+// (reverb fills it, you hear the overtones fade). No 16th notes, no syncopa;
+// the magic comes from the SPACES between hits, not from complexity.
 const quartersToBeat = (i) => i / 4;
 const GROOVE = [
-	{ beat: quartersToBeat(0.00), idx: 0, vel: 1.00, len: "8n" },   // 1
-	{ beat: quartersToBeat(0.50), idx: 2, vel: 0.55, len: "8n" },   // &
-	{ beat: quartersToBeat(1.00), idx: 4, vel: 0.85, len: "8n" },   // 2
-	{ beat: quartersToBeat(1.50), idx: 2, vel: 0.55, len: "8n" },   // &
-	{ beat: quartersToBeat(2.00), idx: 3, vel: 0.90, len: "4n" },   // 3 (long note)
-	{ beat: quartersToBeat(2.75), idx: 4, vel: 0.70, len: "16n" },  // anticipated 16th before 3 (syncopa)
-	{ beat: quartersToBeat(3.00), idx: 0, vel: 1.00, len: "8n" },   // 4 (kořen, nový cyklus)
-	{ beat: quartersToBeat(3.50), idx: 2, vel: 0.55, len: "8n" },   // &
+	{ beat: quartersToBeat(0.0), idx: 0, vel: 1.00, len: "4n" },   // 1: root — opens phrase
+	{ beat: quartersToBeat(1.0), idx: 2, vel: 0.75, len: "4n" },   // 2: third, descending
+	{ beat: quartersToBeat(2.0), idx: 1, vel: 0.85, len: "2n" },   // 3: fifth, long ring
+	{ beat: quartersToBeat(3.5), idx: 0, vel: 0.55, len: "8n" },   // & of 4: soft root echo
 ];
 
 // ---------- Audio graph ----------
@@ -151,6 +146,16 @@ Tone.Transport.scheduleRepeat(() => {
 
 const secondsPerBar = (60 / BPM) * 4;
 
+// ---------- Note logger ----------
+// Every scheduled note (ambient groove + canvas-click ping) prints a single
+// line to the console with chord, step index, velocity and length. Easy to
+// grep in DevTools to see what's actually being played.
+function schedOffsetMs(noteTime) {
+	// Tone.Transport uses AudioContext time, not wall clock; this converts
+	// the scheduled offset into a millisecond delta from "now".
+	return Math.round((noteTime - Tone.now()) * 1000);
+}
+
 Tone.Transport.scheduleRepeat((time) => {
 	if (chordNotes.length === 0) return;
 	const barEnd = time + secondsPerBar;
@@ -160,9 +165,36 @@ Tone.Transport.scheduleRepeat((time) => {
 		const idx = step.idx % chordNotes.length;
 		const note = chordNotes[idx];
 		if (!note) continue;
-		bell.triggerAttackRelease(note, step.len, noteTime, VEL * step.vel);
+		const vel = VEL * step.vel;
+		bell.triggerAttackRelease(note, step.len, noteTime, vel);
+		const off = schedOffsetMs(noteTime);
+		console.log(
+			`[note] ${(currentProgression?.[chordIdx] ?? "??").padEnd(4)} ` +
+			`step=${step.beat.toFixed(2)} idx=${idx} -> ${note.padEnd(3)} ` +
+			`vel=${vel.toFixed(2)} len=${step.len.padEnd(3)} ` +
+			`in ${off >= 0 ? "+" : ""}${off}ms`
+		);
 	}
 }, secondsPerBar);
+
+// Click on the stars canvas — play a single random bell from the chord.
+const starsCanvas = document.getElementById("stars");
+if (starsCanvas) {
+	starsCanvas.addEventListener("click", () => {
+		if (!started) {
+			unlockAudio();
+			startPlayback();
+		}
+		if (!started || chordNotes.length === 0) return;
+		const note = chordNotes[Math.floor(Math.random() * chordNotes.length)];
+		const vel = VEL * 0.55;
+		bell.triggerAttackRelease(note, "8n", Tone.now(), vel);
+		console.log(
+			`[ping] ${(currentProgression?.[chordIdx] ?? "??").padEnd(4)} ` +
+			`-> ${note.padEnd(3)} vel=${vel.toFixed(2)} len=8n (canvas click)`
+		);
+	});
+}
 
 // Initialize with the first chord of the first progression.
 setProgression(PROGRESSIONS[0]);
@@ -358,19 +390,4 @@ function bootWhenTextVisible() {
 ["pointerdown", "keydown", "touchstart", "mousemove", "wheel"].forEach((ev) =>
 	window.addEventListener(ev, unlockAudio, { once: true, passive: true })
 );
-
-btn.addEventListener("click", () => {
-	if (!started) {
-		// Belt-and-braces: a click on the button is itself a gesture, so unlock
-		// fires here too. startPlayback() schedules it once both gates are open.
-		scheduleStartOnUnlock();
-	} else {
-		setMuted(!muted);
-	}
-});
-// After clicking the button, give the context a beat to resume and start.
-function scheduleStartOnUnlock() {
-	unlockAudio();
-	setTimeout(startPlayback, 50);
-}
 

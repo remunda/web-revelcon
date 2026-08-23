@@ -55,9 +55,9 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 
 | File | Role |
 |---|---|
-| `public/index.html` | Markup: sky div, clouds div, stars canvas, sequenced text block, two scripts |
+| `public/index.html` | Markup: sky div, stars canvas, sequenced text block, two scripts |
 | `public/styles.css` | All visual styling, animations, font variables, responsive tweaks |
-| `public/main.js` | Canvas starfield + pointer repulsion + click-to-spawn + adaptive FPS tiers + pointer trail |
+| `public/main.js` | Canvas starfield + mist field + star-shine + pointer trail + adaptive FPS tiers |
 | `public/music.js` | Background music module (loaded as `<script type="module">`) |
 | `wrangler.jsonc` | Workers config: serves `./public` as static assets |
 
@@ -72,26 +72,37 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 - Two looping animations (`skyDrift` 32s, `nebulaShift` 24s) with `translate + scale + hue-rotate + saturate` for organic, non-repeating motion.
 - `.sky::after` adds soft screen-blended noise overlay so the gradient never looks flat.
 
-#### 3. Drifting mist / clouds layer
-- 5 absolutely positioned `.cloud-N` spans inside `.clouds`, each with a unique scale, top %, opacity, and `cloudDrift` animation duration (95s–170s) and negative `animation-delay` so they start mid-screen on load.
-- Each cloud is built from 4 layered radial gradients (blurred 40px) and uses `mix-blend-mode: screen` so it brightens the sky without looking like a solid shape.
-- Sits between sky and stars (`z-index: 1`); stars stay sharp on top.
+#### 3. Drifting mist field (canvas layer)
+- Mist blobs are rendered **on the same canvas as the stars**, **before** stars in the render loop, so stars stay sharp on top. No CSS layer, no `mix-blend-mode`, no `filter: blur()` — alpha falloff in the radial gradient IS the blur. This keeps the mist field in lockstep with the FPS sampler (it adapts when performance drops).
+- Three depth layers in `main.js` (`makeMist`):
+  - Layer 1 (far): radius 0.18–0.32 × `min(width,height)`, speed 4–9 px/s, alpha 0.18–0.32.
+  - Layer 2 (mid): radius 0.28–0.48, speed 7–14 px/s, alpha 0.22–0.38.
+  - Layer 3 (near): radius 0.40–0.65, speed 11–20 px/s, alpha 0.26–0.44.
+- Each mist has a hue (205–245, cool blue/violet), a `squish` factor (0.7–1.3) so they aren't all perfect circles, and a per-mist vertical wobble (8–28 px amplitude, 22–45 s period) so the field never looks like a conveyor belt.
+- Horizontal drift wraps from right back to left with `r * 1.2` margin so blobs don't visibly "pop in" at the edge; on wrap the Y coordinate re-randomizes so the field stays organic.
+- Under `prefers-reduced-motion: reduce` mists are still drawn but skip all position updates and wobble (they sit perfectly still).
 
-#### 4. Canvas starfield with parallax, twinkle, and pointer interaction
+#### 4. Canvas starfield with parallax, twinkle, glow, and star-shine
 - `main.js` renders stars on `<canvas id="stars">` at full window size, using `devicePixelRatio` for sharp rendering.
 - Three depth layers (z = 1/2/3) — closer stars are larger, move faster, and react more to pointer.
-- Twinkle: pre-computed 256-entry sine table advances 5–12 FPS (tier-dependent) so per-frame cost is a table lookup, not `Math.sin`.
-- **Pointer repulsion**: `mousemove` / `touchmove` push nearby stars away with quadratic falloff over a 180 px radius; affected stars also get a brightness boost. Smoothed via spring (`s.ox += (dx - s.ox) * 0.18`).
+- **Two-phase twinkle**: each star combines a slow "breath" sine (0.003–0.012 Hz) with a faster "shimmer" sine (0.008–0.025 Hz), both via the pre-computed 256-entry table. ~25 % of stars are "twitchy" (1.5–1.8× speed, 1.4× amplitude). Brightness range per star: base 0.25–0.7 + amplitude 0.15–0.55, so the field breathes organically instead of pulsing in unison.
+- **Fairytale flash**: ~15 % of stars are scheduled for a one-off bright flare at a random time 4–18 s after spawn. The flare uses a bell curve (`4·t·(1-t)`) over 0.6–1.4 s, then either schedules another flash 8–25 s later or never flashes again. During a flash the star gets a soft glow halo. This is the "twinkle twinkle little star" moment — rare, gentle, never strobing.
+- **Glow** (`high` tier only): two-pass additive (`globalCompositeOperation = "lighter"`) halo on stars currently above brightness 0.75 or in a flash. Outer atmospheric halo (r × 5.5, alpha × 0.07) + inner core glow (r × 2.4, alpha × 0.22). Composes into a believable bloom when bright stars overlap.
+- **Star shine** (`high` tier only, gated by `drawShine`): 4-point diffraction cross on stars above brightness 0.8 or in a flash. Primary horizontal + vertical spikes (length `r × (12 + intensity × 22)`); secondary 45° spikes at 55 % length appear once intensity exceeds 0.5 for the classic "star burst" look. All spikes use `lighter` blend.
 - **Pointer trail** ("kouzelná stopa"): Catmull–Rom → cubic Bézier curve through the last N pointer positions; trail length and thickness scale with cursor speed (min 6 pts, max 44 pts; min width 0.35×, max 1.6×); fades out 1.6 units/s after pointer stops. Disabled when `prefers-reduced-motion: reduce`.
-- Click / tap spawns **one new star** at the pointer with a slight 30 px random offset, `life: 1.4` for a brief bright flash; spawn burst is throttled by `maxStars` (260 hard cap, oldest evicted).
+- Click / tap spawns **one new star** at the pointer with a slight 30 px random offset, `life: 1.4` for a brief bright flash; spawn burst is throttled by `maxStars` (140 hard cap, oldest evicted).
 - `cursor: crosshair` on canvas to signal interactivity.
 
 #### 5. Adaptive performance tiers
 - Detection: `navigator.userAgent` mobile regex, `navigator.deviceMemory ≤ 2`, `navigator.hardwareConcurrency ≤ 2` → start on `mid` tier.
-- Three tiers — `high` (260 stars, DPR 1.5, glow, 12 twinkle FPS), `mid` (180 stars, DPR 1.25, no glow, 8 twinkle FPS), `low` (110 stars, DPR 1, no glow, 5 twinkle FPS).
+- Three tiers:
+  - `high`: 140 stars, 9 mists, DPR 1.5, glow + shine enabled, 12 twinkle FPS.
+  - `mid`: 100 stars, 6 mists, DPR 1.25, glow/shine off, 8 twinkle FPS.
+  - `low`: 70 stars, 3 mists, DPR 1, glow/shine off, 5 twinkle FPS.
+- Counts are intentionally modest — the field should feel like a quiet night sky, not a snowstorm.
 - FPS sampler (1 s window) downgrades tier if FPS < 25 for 3 consecutive samples; upgrades back if FPS > 55 for 4 consecutive samples on non-low-end hardware.
-- **Warm-up grace period**: no tier changes during the first 8 s after page load. This prevents first-paint / font-load / GC-pause FPS dips from wrongly downgrading the tier and visibly removing stars.
-- All tier transitions call `applySize()` so DPR resyncs the canvas backing store.
+- **Warm-up grace period**: no tier changes during the first 8 s after page load. This prevents first-paint / font-load / GC-pause FPS dips from wrongly downgrading the tier and visibly removing stars or mists.
+- All tier transitions call `applySize()` so DPR resyncs the canvas backing store, and `buildMists()` to refresh the mist field for the new cloud count.
 
 #### 6. Animated text sequence before the title
 - Four `<p class="line">` paragraphs appear in order with a fog reveal (fade + blur 16 → 0 + small upward drift) over 6 s, then fog fade out (3 s).
@@ -121,7 +132,7 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 - Base layout works at any viewport via `clamp()`, `100dvh`, `vw`/`vmax` units, and grid-style centring.
 - `@media (max-width: 480px)` increases `.line` font size proportionally so thin calligraphic fonts stay legible, and tightens `.title` / `.more-info` so they don't overflow on narrow phones.
 - `@media (max-width: 360px)` further clamps title and `more-info` for very narrow handsets.
-- All animations inside the canvas and `.sky`/`.clouds` honour `prefers-reduced-motion: reduce` — sky/clouds freeze, title and `more-info` show instantly without reveal, `.line` paragraphs are hidden.
+- All animations inside the canvas and `.sky` honour `prefers-reduced-motion: reduce` — sky freezes, mists still drawn but stopped, title and `more-info` show instantly without reveal, `.line` paragraphs are hidden.
 
 #### 10. Background music
 - `<script type="module" src="/music.js">` loaded from `index.html`.
@@ -131,6 +142,6 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 #### 11. Accessibility & metadata
 - `lang="cs"`, descriptive `<title>` and `<meta name="description">`.
 - `<meta name="theme-color" content="#05060f">` matches body background for a clean mobile chrome colour.
-- Decorative layers (`sky`, `clouds`, `stars`) all carry `aria-hidden="true"`.
+- Decorative layers (`sky`, `stars`) all carry `aria-hidden="true"`.
 - The text sequence container is `aria-live="polite"` so screen readers announce each line as it appears.
 - `prefers-reduced-motion: reduce` disables decorative motion as described in §9.
