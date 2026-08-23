@@ -295,22 +295,21 @@ body {
    More info: starts ~35.8s
 */
 
-.line {
-	animation: fogReveal 3.2s ease-out both,
+.line:nth-child(1) {
+	animation: fogReveal 3.2s ease-out 0.6s both,
 		fogFade 1.4s ease-in 4.8s both;
 }
-
-.line:nth-child(1) {
-	animation-delay: 0.6s, 4.8s;
-}
 .line:nth-child(2) {
-	animation-delay: 9.2s, 13.4s;
+	animation: fogReveal 3.2s ease-out 9.2s both,
+		fogFade 1.4s ease-in 13.4s both;
 }
 .line:nth-child(3) {
-	animation-delay: 17.8s, 22.0s;
+	animation: fogReveal 3.2s ease-out 17.8s both,
+		fogFade 1.4s ease-in 22.0s both;
 }
 .line:nth-child(4) {
-	animation-delay: 26.4s, 30.6s;
+	animation: fogReveal 3.2s ease-out 26.4s both,
+		fogFade 1.4s ease-in 30.6s both;
 }
 
 @keyframes titleReveal {
@@ -415,17 +414,35 @@ body {
 /* Mobile readability tweaks for the thin Italianno script */
 @media (max-width: 480px) {
 	.line {
-		font-size: clamp(2.4rem, 9vw, 3.2rem);
+		font-size: clamp(1.8rem, 7.5vw, 2.6rem);
 		line-height: 1.3;
 		max-width: 92vw;
+		overflow-wrap: break-word;
 	}
 	.title {
-		font-size: clamp(5.5rem, 26vw, 9rem);
+		font-size: clamp(3.5rem, 17vw, 6.5rem);
 		line-height: 1.05;
 		letter-spacing: 0.03em;
+		white-space: normal;
+		max-width: 92vw;
+		overflow-wrap: break-word;
 	}
 	.more-info {
-		font-size: clamp(2.2rem, 8vw, 3rem);
-		top: calc(50% + clamp(5.5rem, 18vw, 7.5rem));
+		font-size: clamp(1.6rem, 6.5vw, 2.4rem);
+		top: calc(50% + clamp(4.5rem, 16vw, 6.5rem));
+		white-space: normal;
+		max-width: 92vw;
+		overflow-wrap: break-word;
+	}
+}
+
+/* Extra-narrow phones */
+@media (max-width: 360px) {
+	.title {
+		font-size: clamp(2.8rem, 15vw, 5rem);
+	}
+	.more-info {
+		font-size: clamp(1.4rem, 6vw, 2rem);
+		top: calc(50% + clamp(4rem, 14vw, 5.5rem));
 	}
 }
