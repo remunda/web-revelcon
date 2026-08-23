@@ -216,7 +216,7 @@ body {
    Line 2: reveal 13.0s -> 20.0s, fade 20.0s -> 23.0s
    Line 3: reveal 26.0s -> 33.0s, fade 33.0s -> 36.0s
    Line 4: reveal 39.0s -> 46.0s, fade 46.0s -> 49.0s
-   Title: flurry letter reveal 49.0s -> 50.22s (8 letters, 0.06s step, 0.80s each) + gentle breeze sway
+   Title: cinematic multi-directional arrival 49.0s -> 51.62s (8 letters, 2.2s flight, 0.06s shuffled stagger) + gentle breeze sway
    More-info: reveal starts at 49.5s, takes 7s
  
    Notes on fill-mode:
@@ -248,11 +248,10 @@ body {
 @keyframes letterArrive {
 	0% {
 		opacity: 0;
-		transform: translate(var(--dx-from, 0px), var(--dy-from, 28px)) scale(0.92);
+		transform: translate(var(--dx-from, 0px), var(--dy-from, 280px)) scale(0.92);
 	}
-	70% {
+	35% {
 		opacity: 1;
-		transform: translate(calc(var(--dx-from, 0px) * -0.06), calc(var(--dy-from, 28px) * -0.06)) scale(1.02);
 	}
 	100% {
 		opacity: 1;
@@ -273,7 +272,7 @@ body {
 	transform-box: fill-box;
 	transform-origin: center;
 	opacity: 0;
-	animation: letterArrive 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+	animation: letterArrive 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .sway {
@@ -283,10 +282,10 @@ body {
 }
 
 .letter:nth-child(1) {
-	animation-delay: 49s;
-	--dx-from: -32px;
-	--dy-from: 26px;
-	--sway-delay: 49.8s;
+	animation-delay: 49.18s;
+	--dx-from: -380px;
+	--dy-from: 280px;
+	--sway-delay: 51.38s;
 	--sway-dur: 4.6s;
 	--sway-rot1: -1.3deg;
 	--sway-rot2: 1.1deg;
@@ -297,9 +296,9 @@ body {
 }
 .letter:nth-child(2) {
 	animation-delay: 49.06s;
-	--dx-from: -20px;
-	--dy-from: -28px;
-	--sway-delay: 49.86s;
+	--dx-from: -260px;
+	--dy-from: -320px;
+	--sway-delay: 51.26s;
 	--sway-dur: 5.4s;
 	--sway-rot1: 1deg;
 	--sway-rot2: -1.4deg;
@@ -309,10 +308,10 @@ body {
 	--sway-y2: 1.2px;
 }
 .letter:nth-child(3) {
-	animation-delay: 49.12s;
-	--dx-from: -4px;
-	--dy-from: 34px;
-	--sway-delay: 49.92s;
+	animation-delay: 49.3s;
+	--dx-from: -60px;
+	--dy-from: 350px;
+	--sway-delay: 51.5s;
 	--sway-dur: 4.2s;
 	--sway-rot1: -0.9deg;
 	--sway-rot2: 1.5deg;
@@ -322,10 +321,10 @@ body {
 	--sway-y2: -1.8px;
 }
 .letter:nth-child(4) {
-	animation-delay: 49.18s;
-	--dx-from: 14px;
-	--dy-from: -30px;
-	--sway-delay: 49.98s;
+	animation-delay: 49.42s;
+	--dx-from: 240px;
+	--dy-from: -340px;
+	--sway-delay: 51.62s;
 	--sway-dur: 6s;
 	--sway-rot1: 1.2deg;
 	--sway-rot2: -1.1deg;
@@ -335,10 +334,10 @@ body {
 	--sway-y2: 1.6px;
 }
 .letter:nth-child(5) {
-	animation-delay: 49.24s;
-	--dx-from: -22px;
-	--dy-from: 28px;
-	--sway-delay: 50.04s;
+	animation-delay: 49.12s;
+	--dx-from: -310px;
+	--dy-from: 240px;
+	--sway-delay: 51.32s;
 	--sway-dur: 4.8s;
 	--sway-rot1: -1.4deg;
 	--sway-rot2: 0.8deg;
@@ -348,10 +347,10 @@ body {
 	--sway-y2: 1.4px;
 }
 .letter:nth-child(6) {
-	animation-delay: 49.3s;
-	--dx-from: -8px;
-	--dy-from: -32px;
-	--sway-delay: 50.1s;
+	animation-delay: 49.36s;
+	--dx-from: 40px;
+	--dy-from: -360px;
+	--sway-delay: 51.56s;
 	--sway-dur: 5.7s;
 	--sway-rot1: 0.8deg;
 	--sway-rot2: -1.3deg;
@@ -361,10 +360,10 @@ body {
 	--sway-y2: -1.6px;
 }
 .letter:nth-child(7) {
-	animation-delay: 49.36s;
-	--dx-from: 26px;
-	--dy-from: 24px;
-	--sway-delay: 50.16s;
+	animation-delay: 49.24s;
+	--dx-from: 340px;
+	--dy-from: 290px;
+	--sway-delay: 51.44s;
 	--sway-dur: 4.4s;
 	--sway-rot1: -1.1deg;
 	--sway-rot2: 1.2deg;
@@ -374,10 +373,10 @@ body {
 	--sway-y2: 1.8px;
 }
 .letter:nth-child(8) {
-	animation-delay: 49.42s;
-	--dx-from: 36px;
-	--dy-from: 18px;
-	--sway-delay: 50.22s;
+	animation-delay: 49s;
+	--dx-from: 450px;
+	--dy-from: -120px;
+	--sway-delay: 51.2s;
 	--sway-dur: 5.1s;
 	--sway-rot1: 1.3deg;
 	--sway-rot2: -1deg;
