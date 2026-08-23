@@ -279,6 +279,11 @@ body {
 		filter: blur(0);
 		transform: translate(-50%, -50%);
 	}
+	33% {
+		opacity: 0;
+		filter: blur(12px);
+		transform: translate(-50%, calc(-50% - 6px));
+	}
 	100% {
 		opacity: 0;
 		filter: blur(12px);
@@ -287,15 +292,16 @@ body {
 }
 
 /* Sequence: 4 lines, each visible while slowly fading through fog.
-   No long delays — each line uses a small stagger (1.5s) and a long blur
-   duration so the fog reveal itself carries the pace.
+   Stagger of 3s between lines so each line fully disappears (opacity 0)
+   before the next one starts emerging — gives a clear "blank" pause
+   between blur effects.
 
-   Line 1: reveal 0.0s -> 6.0s, fade 6.0s -> 9.0s
-   Line 2: reveal 1.5s -> 7.5s, fade 7.5s -> 10.5s
-   Line 3: reveal 3.0s -> 9.0s, fade 9.0s -> 12.0s
-   Line 4: reveal 4.5s -> 10.5s, fade 10.5s -> 13.5s
-   Title: reveal starts at 6.5s, takes 7s
-   More-info: reveal starts at 7.0s, takes 7s
+   Line 1: reveal 0.0s -> 6.0s, fade 6.0s -> 9.0s (1s fade-out + 2s hold)
+   Line 2: reveal 3.0s -> 9.0s, fade 9.0s -> 12.0s
+   Line 3: reveal 6.0s -> 12.0s, fade 12.0s -> 15.0s
+   Line 4: reveal 9.0s -> 15.0s, fade 15.0s -> 18.0s
+   Title: reveal starts at 12.0s, takes 7s
+   More-info: reveal starts at 12.5s, takes 7s
 
    Notes on fill-mode:
    - fogReveal uses `both` so the 0% keyframe (opacity 0) is held during the
@@ -313,13 +319,13 @@ body {
 	animation-delay: 0s, 6s;
 }
 .line:nth-child(2) {
-	animation-delay: 1.5s, 7.5s;
-}
-.line:nth-child(3) {
 	animation-delay: 3s, 9s;
 }
+.line:nth-child(3) {
+	animation-delay: 6s, 12s;
+}
 .line:nth-child(4) {
-	animation-delay: 4.5s, 10.5s;
+	animation-delay: 9s, 15s;
 }
 
 @keyframes titleReveal {
@@ -365,8 +371,8 @@ body {
 	-webkit-text-fill-color: transparent;
 	color: transparent;
 	text-shadow: 0 0 24px rgba(212, 168, 87, 0.35);
-	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 6.5s both,
-		glow 4s ease-in-out 13.7s infinite alternate;
+	animation: titleReveal 7s cubic-bezier(0.2, 0.7, 0.3, 1) 12s both,
+		glow 4s ease-in-out 19.2s infinite alternate;
 	user-select: none;
 	opacity: 0;
 }
@@ -386,7 +392,7 @@ body {
 	white-space: nowrap;
 	color: rgba(245, 230, 168, 0.95);
 	text-shadow: 0 0 18px rgba(212, 168, 87, 0.3);
-	animation: fogReveal 7s ease-out 7s both;
+	animation: fogReveal 7s ease-out 12.5s both;
 	opacity: 0;
 	pointer-events: none;
 }
