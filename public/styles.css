@@ -261,10 +261,13 @@ body {
 
 @keyframes letterSway {
 	0% {
-		transform: translate(var(--sway-x1, -1.2px), var(--sway-y1, -1.5px)) rotate(var(--sway-rot1, -1.2deg));
+		transform: translate(0, 0) rotate(0deg);
+	}
+	50% {
+		transform: translate(var(--sway-x, 1.4px), var(--sway-y, 1.8px)) rotate(var(--sway-rot, 1.1deg));
 	}
 	100% {
-		transform: translate(var(--sway-x2, 1.4px), var(--sway-y2, 1.8px)) rotate(var(--sway-rot2, 1.1deg));
+		transform: translate(0, 0) rotate(0deg);
 	}
 }
 
@@ -287,12 +290,9 @@ body {
 	--dy-from: 280px;
 	--sway-delay: 51.38s;
 	--sway-dur: 4.6s;
-	--sway-rot1: -1.3deg;
-	--sway-rot2: 1.1deg;
-	--sway-x1: -1.4px;
-	--sway-y1: -1.8px;
-	--sway-x2: 1.2px;
-	--sway-y2: 1.5px;
+	--sway-rot: 1.1deg;
+	--sway-x: 1.2px;
+	--sway-y: 1.5px;
 }
 .letter:nth-child(2) {
 	animation-delay: 49.06s;
@@ -300,12 +300,9 @@ body {
 	--dy-from: -320px;
 	--sway-delay: 51.26s;
 	--sway-dur: 5.4s;
-	--sway-rot1: 1deg;
-	--sway-rot2: -1.4deg;
-	--sway-x1: 1.1px;
-	--sway-y1: -2px;
-	--sway-x2: -1.3px;
-	--sway-y2: 1.2px;
+	--sway-rot: -1.4deg;
+	--sway-x: -1.3px;
+	--sway-y: 1.2px;
 }
 .letter:nth-child(3) {
 	animation-delay: 49.3s;
@@ -313,12 +310,9 @@ body {
 	--dy-from: 350px;
 	--sway-delay: 51.5s;
 	--sway-dur: 4.2s;
-	--sway-rot1: -0.9deg;
-	--sway-rot2: 1.5deg;
-	--sway-x1: -0.8px;
-	--sway-y1: 1.6px;
-	--sway-x2: 1.4px;
-	--sway-y2: -1.8px;
+	--sway-rot: 1.5deg;
+	--sway-x: 1.4px;
+	--sway-y: -1.8px;
 }
 .letter:nth-child(4) {
 	animation-delay: 49.42s;
@@ -326,12 +320,9 @@ body {
 	--dy-from: -340px;
 	--sway-delay: 51.62s;
 	--sway-dur: 6s;
-	--sway-rot1: 1.2deg;
-	--sway-rot2: -1.1deg;
-	--sway-x1: 1.5px;
-	--sway-y1: -1.4px;
-	--sway-x2: -1px;
-	--sway-y2: 1.6px;
+	--sway-rot: -1.1deg;
+	--sway-x: -1px;
+	--sway-y: 1.6px;
 }
 .letter:nth-child(5) {
 	animation-delay: 49.12s;
@@ -339,12 +330,9 @@ body {
 	--dy-from: 240px;
 	--sway-delay: 51.32s;
 	--sway-dur: 4.8s;
-	--sway-rot1: -1.4deg;
-	--sway-rot2: 0.8deg;
-	--sway-x1: -1.2px;
-	--sway-y1: -2.2px;
-	--sway-x2: 1.1px;
-	--sway-y2: 1.4px;
+	--sway-rot: 0.8deg;
+	--sway-x: 1.1px;
+	--sway-y: 1.4px;
 }
 .letter:nth-child(6) {
 	animation-delay: 49.36s;
@@ -352,12 +340,9 @@ body {
 	--dy-from: -360px;
 	--sway-delay: 51.56s;
 	--sway-dur: 5.7s;
-	--sway-rot1: 0.8deg;
-	--sway-rot2: -1.3deg;
-	--sway-x1: 0.9px;
-	--sway-y1: 1.8px;
-	--sway-x2: -1.5px;
-	--sway-y2: -1.6px;
+	--sway-rot: -1.3deg;
+	--sway-x: -1.5px;
+	--sway-y: -1.6px;
 }
 .letter:nth-child(7) {
 	animation-delay: 49.24s;
@@ -365,12 +350,9 @@ body {
 	--dy-from: 290px;
 	--sway-delay: 51.44s;
 	--sway-dur: 4.4s;
-	--sway-rot1: -1.1deg;
-	--sway-rot2: 1.2deg;
-	--sway-x1: -1.5px;
-	--sway-y1: -1.2px;
-	--sway-x2: 1.3px;
-	--sway-y2: 1.8px;
+	--sway-rot: 1.2deg;
+	--sway-x: 1.3px;
+	--sway-y: 1.8px;
 }
 .letter:nth-child(8) {
 	animation-delay: 49s;
@@ -378,12 +360,9 @@ body {
 	--dy-from: -120px;
 	--sway-delay: 51.2s;
 	--sway-dur: 5.1s;
-	--sway-rot1: 1.3deg;
-	--sway-rot2: -1deg;
-	--sway-x1: 1.2px;
-	--sway-y1: -1.6px;
-	--sway-x2: -1.1px;
-	--sway-y2: 1.5px;
+	--sway-rot: -1deg;
+	--sway-x: -1.1px;
+	--sway-y: 1.5px;
 }
 
 .title {
