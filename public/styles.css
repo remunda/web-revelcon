@@ -1,10 +1,10 @@
 :root {
 	/* Default body font — available for any future text blocks */
-	--font-base: "Metamorphous", "Cormorant Garamond", "EB Garamond", Garamond,
-		"Times New Roman", serif;
+	--font-base: "Italianno", "Metamorphous", "Cormorant Garamond", "EB Garamond",
+		Garamond, cursive, serif;
 
 	/* Main hero / display font */
-	--font-display: "Fleur De Leah", "Metamorphous", "Cormorant Garamond", Garamond,
+	--font-display: "Italianno", "Metamorphous", "Cormorant Garamond", Garamond,
 		"Times New Roman", cursive, serif;
 }
 
