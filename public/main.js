@@ -252,8 +252,7 @@
 	}
 
 	function onClick(e) {
-		const p = clickPoint(e);
-		spawnBurst(p.clientX, p.clientY);
+		// Stars are static — clicks no longer spawn new stars.
 	}
 
 	// ---------- Pointer ----------
@@ -325,24 +324,7 @@
 		}
 		fpsFrames++;
 
-		// Smooth pointer
-		const ease = 1 - Math.pow(0.001, dt);
-		pointer.vx += (pointer.tx - pointer.x) * ease * 6;
-		pointer.vy += (pointer.ty - pointer.y) * ease * 6;
-		pointer.vx *= 0.86;
-		pointer.vy *= 0.86;
-		pointer.x += pointer.vx * dt * 60;
-		pointer.y += pointer.vy * dt * 60;
-
 		ctx.clearRect(0, 0, width, height);
-
-		const px = pointer.x;
-		const py = pointer.y;
-		const pointerActive = pointer.active;
-		const radius = 180;
-		const radius2 = radius * radius;
-		const pointerXpx = (px * 0.5 + 0.5) * width;
-		const pointerYpx = (py * 0.5 + 0.5) * height;
 
 		// Advance pre-computed twinkle table (much cheaper than Math.sin per star)
 		twinkleFrameAccum += currentTier.twinkleFps * dt;
@@ -356,49 +338,14 @@
 		for (let i = 0; i < stars.length; i++) {
 			const s = stars[i];
 
-			// Drift + spawn burst velocity
-			s.y += s.speed + s.vy;
-			s.x += s.vx;
-			s.vx *= 0.96;
-			s.vy *= 0.96;
-
-			if (s.y - s.r > height) {
-				s.y = -s.r;
-				s.x = Math.random() * width;
-				s.life = 1; // refresh on recycle
-			}
-			if (s.x < -10) s.x = width + 10;
-			else if (s.x > width + 10) s.x = -10;
-
-			// Pointer repulsion
-			let dx = 0;
-			let dy = 0;
-			let boost = 0;
-			if (pointerActive) {
-				const rx = s.x - pointerXpx;
-				const ry = s.y - pointerYpx;
-				const dist2 = rx * rx + ry * ry;
-				if (dist2 < radius2) {
-					const dist = Math.sqrt(dist2) || 1;
-					const falloff = 1 - dist / radius;
-					const push = falloff * falloff * 18 * s.react;
-					dx = (rx / dist) * push;
-					dy = (ry / dist) * push;
-					boost = falloff * 0.6;
-				}
-			}
-
-			// Spring smoothing
-			s.ox += (dx - s.ox) * 0.18;
-			s.oy += (dy - s.oy) * 0.18;
-
+			// Stars are static — fixed positions, no drift, no pointer repulsion.
 			// Decay spawn burst life (only matters for recently-spawned stars)
 			if (s.life < 1) {
 				s.life = Math.min(1, s.life + dt * 0.6);
 			}
 
-			const drawX = s.x + s.ox;
-			const drawY = s.y + s.oy;
+			const drawX = s.x;
+			const drawY = s.y;
 
 			// Pre-computed twinkle (no Math.sin in loop)
 			const phaseIndex =
@@ -406,7 +353,7 @@
 			const idx = ((phaseIndex % TWINKLE_TABLE_SIZE) + TWINKLE_TABLE_SIZE) % TWINKLE_TABLE_SIZE;
 			const twinkle = twinkleTable[idx];
 
-			const alpha = Math.min(1, (0.6 + twinkle * 0.4) * (0.5 + s.z * 0.25) + boost) * s.life;
+			const alpha = Math.min(1, (0.6 + twinkle * 0.4) * (0.5 + s.z * 0.25)) * s.life;
 			if (alpha < 0.05) continue;
 
 			// Batch fills by hue — small win on most engines
