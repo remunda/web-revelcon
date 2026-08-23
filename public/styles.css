@@ -168,61 +168,74 @@ body {
 	pointer-events: none;
 }
 
-@keyframes lineShow {
+@keyframes fogReveal {
 	0% {
 		opacity: 0;
-		transform: translate(-50%, calc(-50% + 8px));
-		filter: blur(6px);
+		filter: blur(16px);
+		transform: translate(-50%, calc(-50% + 6px));
 	}
-	15% {
-		opacity: 1;
+	55% {
+		opacity: 0.85;
+		filter: blur(5px);
 		transform: translate(-50%, -50%);
-		filter: blur(0);
 	}
-	75% {
+	100% {
 		opacity: 1;
-		transform: translate(-50%, -50%);
 		filter: blur(0);
+		transform: translate(-50%, -50%);
+	}
+}
+
+@keyframes fogFade {
+	0% {
+		opacity: 1;
+		filter: blur(0);
+		transform: translate(-50%, -50%);
 	}
 	100% {
 		opacity: 0;
-		transform: translate(-50%, calc(-50% - 8px));
-		filter: blur(6px);
+		filter: blur(12px);
+		transform: translate(-50%, calc(-50% - 6px));
 	}
 }
 
-/* Sequence: 4 lines, each visible for ~5.5s with stagger.
-   Timing per line: 0.8s fade-in, 3.6s hold, 1.1s fade-out
-   Line 1: starts at 0.6s, ends ~5.5s
-   Line 2: starts at 6.1s, ends ~11.0s
-   Line 3: starts at 11.6s, ends ~16.5s
-   Line 4: starts at 17.1s, ends ~22.0s
-   Title: starts at 22.6s
+/* Sequence: 4 lines, each visible ~8s with stagger (slow fog in/out).
+   Line 1: 0.6s -> ~8.6s
+   Line 2: 9.2s -> ~17.2s
+   Line 3: 17.8s -> ~25.8s
+   Line 4: 26.4s -> ~34.4s
+   Title: starts ~35.0s
+   More info: starts ~35.8s
 */
 
+.line {
+	animation: fogReveal 3.2s ease-out both,
+		fogFade 1.4s ease-in 4.8s both;
+}
+
 .line:nth-child(1) {
-	animation: lineShow 5.5s ease-in-out 0.6s both;
+	animation-delay: 0.6s, 4.8s;
 }
 .line:nth-child(2) {
-	animation: lineShow 5.5s ease-in-out 6.1s both;
+	animation-delay: 9.2s, 13.4s;
 }
 .line:nth-child(3) {
-	animation: lineShow 5.5s ease-in-out 11.6s both;
+	animation-delay: 17.8s, 22.0s;
 }
 .line:nth-child(4) {
-	animation: lineShow 5.5s ease-in-out 17.1s both;
+	animation-delay: 26.4s, 30.6s;
 }
 
 @keyframes titleReveal {
 	0% {
 		opacity: 0;
-		transform: translate(-50%, -50%) scale(0.9);
-		filter: blur(8px);
+		transform: translate(-50%, -50%) scale(0.96);
+		filter: blur(20px);
 	}
-	60% {
-		opacity: 1;
-		transform: translate(-50%, -50%) scale(1.04);
-		filter: blur(0);
+	55% {
+		opacity: 0.9;
+		transform: translate(-50%, -50%) scale(1.02);
+		filter: blur(6px);
 	}
 	100% {
 		opacity: 1;
@@ -256,8 +269,8 @@ body {
 	-webkit-text-fill-color: transparent;
 	color: transparent;
 	text-shadow: 0 0 24px rgba(212, 168, 87, 0.35);
-	animation: titleReveal 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) 22.6s both,
-		glow 4s ease-in-out 24.4s infinite alternate;
+	animation: titleReveal 4s cubic-bezier(0.2, 0.7, 0.3, 1) 35s both,
+		glow 4s ease-in-out 39.2s infinite alternate;
 	user-select: none;
 	opacity: 0;
 }
@@ -277,7 +290,7 @@ body {
 	white-space: nowrap;
 	color: rgba(245, 230, 168, 0.95);
 	text-shadow: 0 0 18px rgba(212, 168, 87, 0.3);
-	animation: lineShow 5.5s ease-in-out 23.4s both;
+	animation: fogReveal 6s ease-out 35.8s both;
 	opacity: 0;
 	pointer-events: none;
 }
