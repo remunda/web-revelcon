@@ -52,20 +52,67 @@
 	const reduceMotion =
 		typeof window.matchMedia === "function" &&
 		window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-	const TRAIL_MAX = reduceMotion ? 0 : 28; // délka stopy (v bodech)
+
+	// Dynamická délka a tloušťka podle rychlosti kurzoru (px/s).
+	// Rychlejší pohyb → delší a tlustší stopa; stání → krátká, tenká, blednoucí.
+	const TRAIL_LEN_MIN = 6; // při stání / pomalém pohybu
+	const TRAIL_LEN_MAX = 44; // při rychlém švihu
+	const TRAIL_SPEED_MIN = 50; // px/s — pod tím považujeme pohyb za pomalý
+	const TRAIL_SPEED_MAX = 1800; // px/s — nad tím plná délka
+	const TRAIL_WIDTH_MIN = 0.35; // koeficient šířky jádra při stání
+	const TRAIL_WIDTH_MAX = 1.6; // koeficient při rychlém pohybu
+	const TRAIL_FADE_RATE = 1.6; // body/s — jak rychle mizí stopa po zastavení
 	const TRAIL_MIN_DIST_SQ = 9; // 3 px — potlačí duplikátní body při stání
+
 	const trail = []; // pole {x, y}
 	let lastTrailX = 0;
 	let lastTrailY = 0;
-	let trailActive = false; // true, dokud se pointer pohybuje/je přítomen
+	let lastTrailT = 0; // performance.now() posledního přidaného bodu
+	let trailActive = false; // true, dokud je pointer přítomen
+	let trailSpeed = 0; // aktuální rychlost kurzoru (px/s), vyhlazená
+	let trailFade = 1; // 1 = plně viditelná, 0 = zcela zmizelá (po zastavení)
+	let trailMoving = false; // true, dokud se pointer pohybuje
 
-	function pushTrailPoint(x, y) {
-		if (!trailActive) return;
+	function clamp(v, lo, hi) {
+		return v < lo ? lo : v > hi ? hi : v;
+	}
+
+	function speedToLenFactor(s) {
+		// 0 při pomalém pohybu, 1 při rychlém — plynulý přechod.
+		const t = clamp((s - TRAIL_SPEED_MIN) / (TRAIL_SPEED_MAX - TRAIL_SPEED_MIN), 0, 1);
+		return t;
+	}
+
+	function currentTrailMax() {
+		const f = speedToLenFactor(trailSpeed);
+		return Math.round(TRAIL_LEN_MIN + (TRAIL_LEN_MAX - TRAIL_LEN_MIN) * f);
+	}
+
+	function currentWidthScale() {
+		const f = speedToLenFactor(trailSpeed);
+		return TRAIL_WIDTH_MIN + (TRAIL_WIDTH_MAX - TRAIL_WIDTH_MIN) * f;
+	}
+
+	function pushTrailPoint(x, y, now) {
+		if (!trailActive || reduceMotion) return;
 		const dx = x - lastTrailX;
 		const dy = y - lastTrailY;
-		if (dx * dx + dy * dy < TRAIL_MIN_DIST_SQ) return;
+		const distSq = dx * dx + dy * dy;
+		if (distSq < TRAIL_MIN_DIST_SQ) return;
+
+		// Okamžitá rychlost z delta za poslední přidaný bod.
+		const dtMs = lastTrailT ? now - lastTrailT : 16;
+		const dt = Math.max(1, dtMs) / 1000;
+		const inst = Math.sqrt(distSq) / dt;
+		// Vyhlazení — rychle reaguje na zrychlení, pomalu doznívá.
+		trailSpeed = trailSpeed * 0.55 + inst * 0.45;
+		lastTrailT = now;
+		trailMoving = true;
+		trailFade = 1; // při pohybu je stopa vždy plně viditelná
+
 		trail.push({ x, y });
-		if (trail.length > TRAIL_MAX) trail.shift();
+		const max = currentTrailMax();
+		while (trail.length > max) trail.shift();
 		lastTrailX = x;
 		lastTrailY = y;
 	}
@@ -74,10 +121,33 @@
 		trail.length = 0;
 		lastTrailX = 0;
 		lastTrailY = 0;
+		lastTrailT = 0;
+		trailSpeed = 0;
+		trailFade = 1;
+		trailMoving = false;
+	}
+
+	function updateTrailFade(dt) {
+		// Pokud se pointer nepohybuje, postupně vytrácíme stopu.
+		// Měříme čas od posledního přidaného bodu; pokud je delší než práh,
+		// považujeme pohyb za zastavený a snižujeme fade.
+		if (!trailActive) {
+			trailFade = Math.max(0, trailFade - TRAIL_FADE_RATE * dt);
+			if (trailFade <= 0) {
+				trail.length = 0;
+			}
+			return;
+		}
+		if (!trailMoving) {
+			trailFade = Math.max(0, trailFade - TRAIL_FADE_RATE * dt);
+			if (trailFade <= 0) {
+				trail.length = 0;
+			}
+		}
 	}
 
 	function drawTrail() {
-		if (trail.length < 2) return;
+		if (trail.length < 2 || trailFade <= 0.01) return;
 		const n = trail.length;
 		// Index 0 = nejstarší bod (konec stopy), n-1 = aktuální pozice kurzoru.
 		// Stárím → nižší alpha → rozplývání od konce.
@@ -101,10 +171,12 @@
 			};
 		}
 
+		// Dynamická tloušťka podle rychlosti — rychlejší pohyb = tlustší stopa.
+		const widthScale = currentWidthScale();
 		// t = 0 na konci ocasu, t = 1 u špičky (aktuální pozice kurzoru).
 		// Šířka a alpha rostou s t — stopa se zužuje a bledne ke konci.
-		const widthAt = (t) => 0.4 + t * t * 9.6; // 0.4 px → 10 px
-		const alphaAt = (t) => t * t * 0.95; // 0 → 0.95
+		const widthAt = (t) => (0.4 + t * t * 9.6) * widthScale;
+		const alphaAt = (t) => t * t * 0.95 * trailFade;
 
 		ctx.lineCap = "round";
 		ctx.lineJoin = "round";
@@ -112,15 +184,12 @@
 		// 1) Měkký glow pod hlavní čárou — několik tlustších, průhlednějších průchodů.
 		// Každý průchod kreslíme po segmentech, aby se zužoval a bledl ke konci.
 		for (let pass = 3; pass >= 1; pass--) {
-			const widthScale = 1 + pass * 0.6; // 2.8, 2.2, 1.6 — glow je širší než jádro
+			const glowScale = 1 + pass * 0.6; // 2.8, 2.2, 1.6 — glow je širší než jádro
 			const alphaScale = 0.18 / pass; // 0.06, 0.09, 0.18
 			ctx.strokeStyle = "rgba(120, 170, 255, " + alphaScale.toFixed(3) + ")";
 			for (let i = 0; i < n - 1; i++) {
-				const t0 = i / (n - 1);
 				const t1 = (i + 1) / (n - 1);
-				const w0 = widthAt(t0) * widthScale;
-				const w1 = widthAt(t1) * widthScale;
-				const a0 = alphaAt(t0) * 0.9;
+				const w1 = widthAt(t1) * glowScale;
 				const a1 = alphaAt(t1) * 0.9;
 				if (a1 < 0.02) continue;
 				ctx.lineWidth = w1;
@@ -130,10 +199,6 @@
 				const c = ctrl[i];
 				ctx.bezierCurveTo(c.c1x, c.c1y, c.c2x, c.c2y, pts[i + 1].x, pts[i + 1].y);
 				ctx.stroke();
-				// w0/a0 se využijí v další iteraci — gradient přes segment
-				// zajišťuje plynulý přechod, takže stačí hodnoty na koncovém bodě.
-				void w0;
-				void a0;
 			}
 		}
 		ctx.globalAlpha = 1;
@@ -143,7 +208,6 @@
 		for (let i = 0; i < n - 1; i++) {
 			const t0 = i / (n - 1);
 			const t1 = (i + 1) / (n - 1);
-			const w0 = widthAt(t0);
 			const w1 = widthAt(t1);
 			const a0 = alphaAt(t0);
 			const a1 = alphaAt(t1);
@@ -165,19 +229,19 @@
 			const c = ctrl[i];
 			ctx.bezierCurveTo(c.c1x, c.c1y, c.c2x, c.c2y, pts[i + 1].x, pts[i + 1].y);
 			ctx.stroke();
-			void w0;
 		}
 		ctx.globalAlpha = 1;
 
-		// 3) Jiskřička na špičce u aktuálního bodu.
+		// 3) Jiskřička na špičce u aktuálního bodu — bledne spolu se stopou.
 		const head = pts[n - 1];
-		ctx.fillStyle = "rgba(230, 240, 255, 0.95)";
+		const headAlpha = trailFade;
+		ctx.fillStyle = "rgba(230, 240, 255, " + (0.95 * headAlpha).toFixed(3) + ")";
 		ctx.beginPath();
-		ctx.arc(head.x, head.y, 3, 0, Math.PI * 2);
+		ctx.arc(head.x, head.y, 3 * widthScale, 0, Math.PI * 2);
 		ctx.fill();
-		ctx.fillStyle = "rgba(140, 190, 255, 0.45)";
+		ctx.fillStyle = "rgba(140, 190, 255, " + (0.45 * headAlpha).toFixed(3) + ")";
 		ctx.beginPath();
-		ctx.arc(head.x, head.y, 8, 0, Math.PI * 2);
+		ctx.arc(head.x, head.y, 8 * widthScale, 0, Math.PI * 2);
 		ctx.fill();
 	}
 
@@ -261,7 +325,7 @@
 		pointer.ty = (clientY / height) * 2 - 1;
 		pointer.active = true;
 		trailActive = true;
-		pushTrailPoint(clientX, clientY);
+		pushTrailPoint(clientX, clientY, performance.now());
 	}
 
 	function onPointerMove(e) {
@@ -314,6 +378,16 @@
 		const now = performance.now();
 		const dt = pointer.lastT ? Math.min(0.05, (t - pointer.lastT) / 1000) : 0.016;
 		pointer.lastT = t;
+
+		// Trail fade: pokud se pointer delší dobu nepohnul, postupně vytrácíme.
+		// Pokud pointer opustil okno, vytrácíme také.
+		if (trailMoving) {
+			if (lastTrailT && now - lastTrailT > 80) {
+				trailMoving = false;
+				trailSpeed = 0;
+			}
+		}
+		updateTrailFade(dt);
 
 		// FPS sampling (skip first second)
 		if (now - fpsLast > 1000) {
