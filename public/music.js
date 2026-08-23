@@ -14,13 +14,13 @@ import * as Tone from "https://esm.sh/tone@14";
 // Triads ring cleaner than 7ths/9ths at the bell register — no muddiness.
 // All four progressions use popular pop cadences the ear recognises instantly.
 const PROGRESSIONS = [
-	["Am", "F",  "G",  "Em"],  // vi–IV–I–V (Despacito, twist)
-	["F",  "G",   "Am", "C"], // IV–V–I–vi (longing ballad)
+	["Am", "F",  "G",  "Em"],
+	["F",  "G",   "Am", "C"], 
 ];
 // BPM tuned so one beat = exactly one chord. The chord scheduler fires
 // every quarter note, so the harmony steps 4 times per bar — fast enough
 // to feel like a moving arpeggio, slow enough that each chord still rings.
-const BPM = 72;
+const BPM = 30;
 const CHORD_SEC = 60 / BPM; // = 1 beat ≈ 0.83s
 const OCTAVE = 5;
 const VEL = 0.32;
@@ -30,16 +30,31 @@ const NOTE_LEN = "4n";           // each bell rings ~half the gap -> mild overla
 const START_DELAY_SEC = 0.6;     // grace period after text appears
 
 // ---------- Groove (single, magical) ----------
-// One bell per beat, 4 hits per bar. The chord changes every beat, so each
-// hit lands on a different harmony — that's the "3 chords per beat" feel.
-// Indices climb the chord (root → 3rd → 5th → root) for a slow arpeggio
-// shape; the long 2n on beat 3 leaves the biggest silence for the reverb.
+// Ascending triplet arpeggio: 1-2-3, 1-2-3, 1-2-3, 1-2-3 — root, third,
+// fifth, repeated four times per bar (12 hits total). Each triplet climbs
+// from the lowest chord tone to the highest, so the line always rises.
+// Velocity shape per triplet: first note strongest, last weakest — that's
+// the natural "tap-tap-tap" decay a hand makes on a keyboard. Beat 1 of
+// the bar carries the strongest accent; beat 3 holds a long 2n so the
+// reverb can breathe.
 const quartersToBeat = (i) => i / 4;
 const GROOVE = [
-	{ beat: quartersToBeat(0.0), idx: 0, vel: 1.00, len: "4n" },   // 1: root
-	{ beat: quartersToBeat(1.0), idx: 2, vel: 0.75, len: "4n" },   // 2: third
-	{ beat: quartersToBeat(2.0), idx: 1, vel: 0.85, len: "2n" },   // 3: fifth, long ring
-	{ beat: quartersToBeat(3.0), idx: 0, vel: 0.65, len: "4n" },   // 4: root, soft
+	// Beat 1: 1-2-3 (strong accent — bar downbeat)
+	{ beat: quartersToBeat(0.00), idx: 0, vel: 1.00, len: "8n" },
+	{ beat: quartersToBeat(0.33), idx: 1, vel: 0.55, len: "8n" },
+	{ beat: quartersToBeat(0.67), idx: 2, vel: 0.40, len: "8n" },
+	// Beat 2: 1-2-3 (medium accent)
+	{ beat: quartersToBeat(1.00), idx: 0, vel: 0.75, len: "8n" },
+	{ beat: quartersToBeat(1.33), idx: 1, vel: 0.45, len: "8n" },
+	{ beat: quartersToBeat(1.67), idx: 2, vel: 0.35, len: "8n" },
+	// Beat 3: 1-2-3 (medium accent, first note long)
+	{ beat: quartersToBeat(2.00), idx: 0, vel: 0.85, len: "2n" },
+	{ beat: quartersToBeat(2.33), idx: 1, vel: 0.45, len: "8n" },
+	{ beat: quartersToBeat(2.67), idx: 2, vel: 0.35, len: "8n" },
+	// Beat 4: 1-2-3 (soft — leads back to beat 1)
+	{ beat: quartersToBeat(3.00), idx: 0, vel: 0.60, len: "8n" },
+	{ beat: quartersToBeat(3.33), idx: 1, vel: 0.40, len: "8n" },
+	{ beat: quartersToBeat(3.67), idx: 2, vel: 0.30, len: "8n" },
 ];
 
 // ---------- Audio graph ----------
@@ -71,6 +86,23 @@ const lowpass = new Tone.Filter({
 const filterLfo = new Tone.LFO("0.05Hz", 3000, 5500).connect(lowpass.frequency);
 filterLfo.start();
 
+// Bass chain: a separate path for the low octave-down anchor. The main
+// highpass at 900 Hz would swallow it (A4 = 440 Hz, F4 = 349 Hz, etc.),
+// so the bass gets its own gentler highpass at 120 Hz — keeps the rumble
+// out but lets the bell tone through. Slightly darker lowpass (2.6 kHz)
+// so the bass sits underneath the melody instead of competing.
+const bassHighpass = new Tone.Filter({
+	frequency: 120,
+	type: "highpass",
+	rolloff: -12,
+});
+const bassLowpass = new Tone.Filter({
+	frequency: 2600,
+	type: "lowpass",
+	rolloff: -12,
+	Q: 0.7,
+});
+
 const bell = new Tone.FMSynth({
 	harmonicity: 2.4,
 	modulationIndex: 0.55,
@@ -80,10 +112,24 @@ const bell = new Tone.FMSynth({
 	modulationEnvelope: { attack: 0.04, decay: 0.4, sustain: 0, release: 1.2 },
 });
 
+// Bass bell: bigger, slower, darker. Lower harmonicity + longer envelope
+// gives it the "great bell" character — slower attack, longer ring.
+const bassBell = new Tone.FMSynth({
+	harmonicity: 1.6,
+	modulationIndex: 0.40,
+	oscillator: { type: "sine" },
+	modulation: { type: "sine" },
+	envelope: { attack: 0.10, decay: 1.8, sustain: 0.08, release: 4.5 },
+	modulationEnvelope: { attack: 0.06, decay: 0.6, sustain: 0, release: 1.8 },
+});
+
 const master = new Tone.Gain(0).toDestination();
 
 bell.chain(highpass, lowpass, reverb, master);
 bell.chain(highpass, lowpass, pingPong, master);
+// Bass goes through its own gentler filter chain so it survives the
+// highpass that would otherwise swallow it.
+bassBell.chain(bassHighpass, bassLowpass, reverb, master);
 
 // ---------- State ----------
 let currentProgression = PROGRESSIONS[0];
@@ -151,30 +197,54 @@ function schedOffsetMs(noteTime) {
 	return Math.round((noteTime - Tone.now()) * 1000);
 }
 
-// Groove scheduler fires once per beat. Each tick plays exactly one note
-// from GROOVE (the one whose beat matches this tick), so the chord change
-// and the bell hit land on the same downbeat — that's the "3 chords per
-// beat" feel: harmony and rhythm locked together.
+// Groove scheduler fires once per triplet (3 notes per beat, 12 per bar).
+// Each tick plays one note from GROOVE; the chord change and the bell hit
+// land on the same downbeat — harmony and rhythm locked together.
+// On beat 1 of every bar we ALSO ring the chord root one octave below —
+// that low "anchor" gives the arpeggio a foundation, like a bass bell
+// under the higher melody. Humanise: small random timing + velocity jitter
+// so the line breathes instead of sounding like a sequencer. First note of
+// each triplet is steadier (the "accent" lands cleanly); later notes drift.
 const secondsPerBeat = 60 / BPM;
+const secondsPerTriplet = secondsPerBeat / 3;
 Tone.Transport.scheduleRepeat((time) => {
 	if (chordNotes.length === 0) return;
-	// Beat index within the bar: 0, 1, 2, or 3. We compute it from the
-	// scheduled time relative to the transport's start, modulo one bar.
-	const beatInBar = Math.floor((time / secondsPerBeat)) % 4;
-	const step = GROOVE[beatInBar];
+	// Triplet index within the bar: 0..11. We compute it from the scheduled
+	// time relative to the transport's start, modulo one bar.
+	const tripletInBar = Math.floor((time / secondsPerTriplet)) % 12;
+	const step = GROOVE[tripletInBar];
 	if (!step) return;
 	const note = chordNotes[step.idx % chordNotes.length];
 	if (!note) return;
-	const vel = VEL * step.vel;
-	bell.triggerAttackRelease(note, step.len, time, vel);
-	const off = schedOffsetMs(time);
+	// Position within the triplet (0 = first, 1 = middle, 2 = last).
+	// First note is steadier; later notes drift more.
+	const posInTriplet = tripletInBar % 3;
+	const timeJitter = (Math.random() - 0.5) * 0.030 * (1 + posInTriplet * 0.5);
+	const velJitter = 1 + (Math.random() - 0.5) * 0.18 * (1 + posInTriplet * 0.3);
+	const vel = VEL * step.vel * velJitter;
+	const noteTime = time + timeJitter;
+	bell.triggerAttackRelease(note, step.len, noteTime, vel);
+	const off = schedOffsetMs(noteTime);
 	console.log(
 		`[note] ${(currentProgression?.[chordIdx] ?? "??").padEnd(4)} ` +
-		`beat=${beatInBar} idx=${step.idx} -> ${note.padEnd(3)} ` +
+		`triplet=${tripletInBar} idx=${step.idx} -> ${note.padEnd(3)} ` +
 		`vel=${vel.toFixed(2)} len=${step.len.padEnd(3)} ` +
 		`in ${off >= 0 ? "+" : ""}${off}ms`
 	);
-}, secondsPerBeat);
+	// Bass anchor: on the first triplet of every beat (i.e. every beat),
+	// ring the chord root one octave below. Same timing as the melody note,
+	// slightly softer so it sits underneath instead of competing.
+	if (tripletInBar % 3 === 0 && chordNotes[0]) {
+		const bassNote = chordNotes[0].replace(/(\d)$/, (m) => String(Number(m) - 1));
+		const bassVel = vel * 0.85;
+		bassBell.triggerAttackRelease(bassNote, "2n", noteTime, bassVel);
+		console.log(
+			`[bass] ${(currentProgression?.[chordIdx] ?? "??").padEnd(4)} ` +
+			`-> ${bassNote.padEnd(3)} vel=${bassVel.toFixed(2)} len=2n ` +
+			`(octave below root, beat ${tripletInBar / 3})`
+		);
+	}
+}, secondsPerTriplet);
 
 // Click on the stars canvas — play a single random bell from the chord.
 const starsCanvas = document.getElementById("stars");
