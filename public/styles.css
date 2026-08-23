@@ -293,23 +293,30 @@ body {
    Line 4: 26.4s -> ~34.4s
    Title: starts ~35.0s
    More info: starts ~35.8s
+
+   Notes on fill-mode:
+   - fogReveal uses `both` so the 0% keyframe (opacity 0) is held during the
+     animation-delay (otherwise the line would show before its turn).
+   - fogFade uses `forwards` so it does NOT hold its 0% keyframe during its
+     own delay — otherwise it would override fogReveal with opacity 1 and
+     flash all lines visible at t=0.
 */
+.line {
+	animation: fogReveal 3.2s ease-out both,
+		fogFade 1.4s ease-in forwards;
+}
 
 .line:nth-child(1) {
-	animation: fogReveal 3.2s ease-out 0.6s both,
-		fogFade 1.4s ease-in 4.8s both;
+	animation-delay: 0.6s, 4.8s;
 }
 .line:nth-child(2) {
-	animation: fogReveal 3.2s ease-out 9.2s both,
-		fogFade 1.4s ease-in 13.4s both;
+	animation-delay: 9.2s, 13.4s;
 }
 .line:nth-child(3) {
-	animation: fogReveal 3.2s ease-out 17.8s both,
-		fogFade 1.4s ease-in 22.0s both;
+	animation-delay: 17.8s, 22.0s;
 }
 .line:nth-child(4) {
-	animation: fogReveal 3.2s ease-out 26.4s both,
-		fogFade 1.4s ease-in 30.6s both;
+	animation-delay: 26.4s, 30.6s;
 }
 
 @keyframes titleReveal {
