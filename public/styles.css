@@ -126,6 +126,93 @@ body {
 	cursor: crosshair;
 }
 
+/* Drifting mist / clouds — sits between sky and stars so stars stay sharp on top */
+.clouds {
+	position: fixed;
+	inset: -15%;
+	z-index: 1;
+	pointer-events: none;
+	overflow: hidden;
+	mix-blend-mode: screen;
+	opacity: 0.85;
+}
+
+.cloud {
+	position: absolute;
+	left: -40%;
+	width: 70vmax;
+	height: 28vmax;
+	background:
+		radial-gradient(
+			ellipse 38% 55% at 28% 50%,
+			rgba(170, 190, 230, 0.18) 0%,
+			rgba(170, 190, 230, 0) 70%
+		),
+		radial-gradient(
+			ellipse 32% 50% at 55% 45%,
+			rgba(140, 160, 210, 0.16) 0%,
+			rgba(140, 160, 210, 0) 70%
+		),
+		radial-gradient(
+			ellipse 28% 45% at 78% 55%,
+			rgba(180, 200, 240, 0.14) 0%,
+			rgba(180, 200, 240, 0) 70%
+		),
+		radial-gradient(
+			ellipse 45% 60% at 50% 60%,
+			rgba(120, 140, 200, 0.12) 0%,
+			rgba(120, 140, 200, 0) 75%
+		);
+	filter: blur(40px);
+	will-change: transform, opacity;
+	animation: cloudDrift linear infinite;
+}
+
+.cloud-1 {
+	top: 8%;
+	transform: scale(0.9);
+	animation-duration: 95s;
+	animation-delay: -10s;
+	opacity: 0.7;
+}
+.cloud-2 {
+	top: 28%;
+	transform: scale(1.15);
+	animation-duration: 140s;
+	animation-delay: -55s;
+	opacity: 0.55;
+}
+.cloud-3 {
+	top: 48%;
+	transform: scale(0.75);
+	animation-duration: 110s;
+	animation-delay: -30s;
+	opacity: 0.8;
+}
+.cloud-4 {
+	top: 65%;
+	transform: scale(1.3);
+	animation-duration: 170s;
+	animation-delay: -90s;
+	opacity: 0.5;
+}
+.cloud-5 {
+	top: 82%;
+	transform: scale(0.85);
+	animation-duration: 125s;
+	animation-delay: -70s;
+	opacity: 0.65;
+}
+
+@keyframes cloudDrift {
+	0% {
+		transform: translate3d(0, 0, 0) scale(var(--cloud-scale, 1));
+	}
+	100% {
+		transform: translate3d(180vw, 0, 0) scale(var(--cloud-scale, 1));
+	}
+}
+
 .center {
 	position: fixed;
 	inset: 0;
@@ -319,7 +406,8 @@ body {
 		display: none;
 	}
 	.sky,
-	.sky::after {
+	.sky::after,
+	.cloud {
 		animation: none;
 	}
 }
