@@ -232,16 +232,22 @@ Tone.Transport.scheduleRepeat((time) => {
 		`in ${off >= 0 ? "+" : ""}${off}ms`
 	);
 	// Bass anchor: on the first triplet of every beat (i.e. every beat),
-	// ring the chord root one octave below. Same timing as the melody note,
-	// slightly softer so it sits underneath instead of competing.
-	if (tripletInBar % 3 === 0 && chordNotes[0]) {
-		const bassNote = chordNotes[0].replace(/(\d)$/, (m) => String(Number(m) - 1));
-		const bassVel = vel * 0.85;
-		bassBell.triggerAttackRelease(bassNote, "2n", noteTime, bassVel);
+	// ring the WHOLE chord one octave below — root, third, fifth stacked.
+	// Same timing as the melody note, slightly softer so it sits underneath
+	// instead of competing. The full-chord bass gives the arpeggio a
+	// harmonic foundation instead of just a single root note.
+	if (tripletInBar % 3 === 0 && chordNotes.length >= 3) {
+		const bassNotes = chordNotes
+			.slice(0, 3)
+			.map((n) => n.replace(/(\d)$/, (m) => String(Number(m) - 1)));
+		const bassVel = vel * 0.55;
+		for (const bn of bassNotes) {
+			bassBell.triggerAttackRelease(bn, "2n", noteTime, bassVel);
+		}
 		console.log(
 			`[bass] ${(currentProgression?.[chordIdx] ?? "??").padEnd(4)} ` +
-			`-> ${bassNote.padEnd(3)} vel=${bassVel.toFixed(2)} len=2n ` +
-			`(octave below root, beat ${tripletInBar / 3})`
+			`-> [${bassNotes.join(", ")}] vel=${bassVel.toFixed(2)} len=2n ` +
+			`(full chord below, beat ${tripletInBar / 3})`
 		);
 	}
 }, secondsPerTriplet);
