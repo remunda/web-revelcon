@@ -204,20 +204,21 @@ body {
 	}
 }
 
-/* Sequence: 4 lines, each fully readable (sharp, no blur) for ~5s,
-   then a clear blank pause before the next line emerges.
-   fogReveal: 7s total — first ~2.1s dissolves in through fog, then holds
-   sharp and readable for the remaining ~4.9s.
-   fogFade: 3s total — first ~1s blurs/fades out, then holds invisible.
-   Stagger of 13s between lines so each line is fully gone (opacity 0)
-   for ~3s before the next starts dissolving in — no overlap, clear pause.
+/* Sequence: 4 lines flowing as a continuous crossfade — the next line
+   starts dissolving in while the previous is still fading out.
+   fogReveal: 6s total — first ~1.8s dissolves in through fog, then holds
+   sharp and readable for the remaining ~4.2s.
+   fogFade: 2.5s total — first ~0.8s blurs/fades out, then holds invisible.
+   Stagger of 7.5s between lines: the next line begins emerging 1s before
+   the previous finishes fading — a soft crossfade, no dead pause.
 
-   Line 1: reveal 0.0s -> 7.0s, fade 7.0s -> 10.0s (sharp ~2.1s -> 7.0s)
-   Line 2: reveal 13.0s -> 20.0s, fade 20.0s -> 23.0s
-   Line 3: reveal 26.0s -> 33.0s, fade 33.0s -> 36.0s
-   Line 4: reveal 39.0s -> 46.0s, fade 46.0s -> 49.0s
-   Title: cinematic multi-directional arrival 49.0s -> 51.62s (8 letters, 2.2s flight, 0.06s shuffled stagger) + gentle breeze sway
-   More-info: reveal starts at 49.5s, takes 7s
+    Line 1: reveal 0.0s -> 6.0s, fade 6.0s -> 8.5s (sharp ~1.8s -> 6.0s)
+    Line 2: reveal 7.5s -> 13.5s, fade 13.5s -> 16.0s
+    Line 3: reveal 15.0s -> 21.0s, fade 21.0s -> 23.5s
+    Line 4: reveal 22.5s -> 28.5s, fade 28.5s -> 31.0s
+    Title: cinematic multi-directional arrival 31.0s -> 33.62s (8 letters, 2.2s flight, 0.06s shuffled stagger) + gentle breeze sway
+    More-info: reveal starts at 31.5s, takes 6s
+
  
    Notes on fill-mode:
    - fogReveal uses `both` so the 0% keyframe (opacity 0) is held during the
@@ -228,21 +229,21 @@ body {
      flash all lines visible at t=0.
 */
 .line {
-	animation: fogReveal 7s ease-out both,
-		fogFade 3s ease-in forwards;
+	animation: fogReveal 6s ease-out both,
+		fogFade 2.5s ease-in forwards;
 }
 
 .line:nth-child(1) {
-	animation-delay: 0s, 7s;
+	animation-delay: 0s, 6s;
 }
 .line:nth-child(2) {
-	animation-delay: 13s, 20s;
+	animation-delay: 7.5s, 13.5s;
 }
 .line:nth-child(3) {
-	animation-delay: 26s, 33s;
+	animation-delay: 15s, 21s;
 }
 .line:nth-child(4) {
-	animation-delay: 39s, 46s;
+	animation-delay: 22.5s, 28.5s;
 }
 
 @keyframes letterArrive {
@@ -281,84 +282,84 @@ body {
 .sway {
 	transform-box: fill-box;
 	transform-origin: center;
-	animation: letterSway var(--sway-dur, 5.2s) ease-in-out var(--sway-delay, 50s) infinite alternate;
+	animation: letterSway var(--sway-dur, 5.2s) ease-in-out var(--sway-delay, 32s) infinite alternate;
 }
 
 .letter:nth-child(1) {
-	animation-delay: 49.18s;
+	animation-delay: 31.18s;
 	--dx-from: -380px;
 	--dy-from: 280px;
-	--sway-delay: 51.38s;
+	--sway-delay: 33.38s;
 	--sway-dur: 4.6s;
 	--sway-rot: 1.1deg;
 	--sway-x: 1.2px;
 	--sway-y: 1.5px;
 }
 .letter:nth-child(2) {
-	animation-delay: 49.06s;
+	animation-delay: 31.06s;
 	--dx-from: -260px;
 	--dy-from: -320px;
-	--sway-delay: 51.26s;
+	--sway-delay: 33.26s;
 	--sway-dur: 5.4s;
 	--sway-rot: -1.4deg;
 	--sway-x: -1.3px;
 	--sway-y: 1.2px;
 }
 .letter:nth-child(3) {
-	animation-delay: 49.3s;
+	animation-delay: 31.3s;
 	--dx-from: -60px;
 	--dy-from: 350px;
-	--sway-delay: 51.5s;
+	--sway-delay: 33.5s;
 	--sway-dur: 4.2s;
 	--sway-rot: 1.5deg;
 	--sway-x: 1.4px;
 	--sway-y: -1.8px;
 }
 .letter:nth-child(4) {
-	animation-delay: 49.42s;
+	animation-delay: 31.42s;
 	--dx-from: 240px;
 	--dy-from: -340px;
-	--sway-delay: 51.62s;
+	--sway-delay: 33.62s;
 	--sway-dur: 6s;
 	--sway-rot: -1.1deg;
 	--sway-x: -1px;
 	--sway-y: 1.6px;
 }
 .letter:nth-child(5) {
-	animation-delay: 49.12s;
+	animation-delay: 31.12s;
 	--dx-from: -310px;
 	--dy-from: 240px;
-	--sway-delay: 51.32s;
+	--sway-delay: 33.32s;
 	--sway-dur: 4.8s;
 	--sway-rot: 0.8deg;
 	--sway-x: 1.1px;
 	--sway-y: 1.4px;
 }
 .letter:nth-child(6) {
-	animation-delay: 49.36s;
+	animation-delay: 31.36s;
 	--dx-from: 40px;
 	--dy-from: -360px;
-	--sway-delay: 51.56s;
+	--sway-delay: 33.56s;
 	--sway-dur: 5.7s;
 	--sway-rot: -1.3deg;
 	--sway-x: -1.5px;
 	--sway-y: -1.6px;
 }
 .letter:nth-child(7) {
-	animation-delay: 49.24s;
+	animation-delay: 31.24s;
 	--dx-from: 340px;
 	--dy-from: 290px;
-	--sway-delay: 51.44s;
+	--sway-delay: 33.44s;
 	--sway-dur: 4.4s;
 	--sway-rot: 1.2deg;
 	--sway-x: 1.3px;
 	--sway-y: 1.8px;
 }
 .letter:nth-child(8) {
-	animation-delay: 49s;
+	animation-delay: 31s;
 	--dx-from: 450px;
 	--dy-from: -120px;
-	--sway-delay: 51.2s;
+	--sway-delay: 33.2s;
 	--sway-dur: 5.1s;
 	--sway-rot: -1deg;
 	--sway-x: -1.1px;
@@ -374,7 +375,7 @@ body {
 	width: min(96vw, 1500px);
 	aspect-ratio: 800 / 200;
 	user-select: none;
-	animation: glow 4s ease-in-out 56.2s infinite alternate;
+	animation: glow 4s ease-in-out 38.2s infinite alternate;
 }
 
 .title-svg {
@@ -399,7 +400,7 @@ body {
 	white-space: nowrap;
 	color: rgba(245, 230, 168, 0.95);
 	text-shadow: 0 0 18px rgba(212, 168, 87, 0.3);
-	animation: fogReveal 7s ease-out 49.5s both;
+	animation: fogReveal 6s ease-out 31.5s both;
 	opacity: 0;
 	pointer-events: none;
 }

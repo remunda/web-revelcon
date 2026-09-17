@@ -106,8 +106,8 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 - All tier transitions call `applySize()` so DPR resyncs the canvas backing store, and `buildMists()` to refresh the mist field for the new cloud count.
 
 #### 6. Animated text sequence before the title
-- Four `<p class="line">` paragraphs appear in order with a fog reveal (fade + blur 16 → 0 + small upward drift) over 6 s, then fog fade out (3 s).
-- Stagger: line 1 starts at 0 s, line 2 at 1.5 s, line 3 at 3 s, line 4 at 4.5 s.
+- Four `<p class="line">` paragraphs appear in order with a fog reveal (fade + blur 16 → 0 + small upward drift) over 6 s, then fog fade out (2.5 s).
+- Stagger of 7.5 s between lines with a soft crossfade — the next line starts dissolving in 1 s before the previous finishes fading out (no dead pause). Line starts: 0 s, 7.5 s, 15 s, 22.5 s; sequence ends at 31 s.
 - `.sequence` container is `max-width: min(620px, 88vw)` so text isn't stretched on wide monitors.
 - Each `.line` is `position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)` and centred within the container.
 
@@ -117,10 +117,10 @@ This is a single-page, fullscreen animated landing for the **RevelCON** event ("
 - Wave: each path has a hand-tuned `transform="translate(x y) scale(s -s)"` where `y` follows a sinusoid (amplitude 10 px, first letter at baseline, peak in middle, last letter back at baseline).
 - Gold gradient fill (`#fff8dc → #f5e6a8 → #a37a2c`) via inline `<linearGradient id="titleGold">` applied to the wrapping `<g fill="url(#titleGold)">`. Soft glow via inline `<filter id="titleGlow">` (Gaussian blur stdDeviation 0.8 + feMerge).
 - `.title` is sized `width: min(96vw, 1500px)` with `aspect-ratio: 800 / 200` so the SVG scales proportionally on any viewport. Mobile breakpoints tighten width to `98vw` (≤480 px) and `100vw` (≤360 px).
-- **Cinematic multi-directional flurry arrival**: `letterArrive` keyframes (opacity 0 → 1 at 35%, `translate(var(--dx-from), var(--dy-from))` smoothly decelerating directly to `translate(0, 0)` with no overshoot jump, scale 0.92 → 1, easing `cubic-bezier(0.16, 1, 0.3, 1)`) running for a deliberate 2.20 s per letter. Letters launch in a non-linear shuffled order ("napřeskáčku": n, e, l, R, o, v, c, e) with a tight 0.06 s stagger (launching 49.00 s to 49.42 s, landing ~51.20 s to 51.62 s) without any blur.
-- **Gentle wind sway**: Inner `<g class="sway">` elements run `letterSway` keyframes (starting from `(0, 0) 0°` to ensure a seamless handoff without any position jump, oscillating rotation -1.4° to +1.5° and translation ±1.0px to ±1.8px on 4.2s–6.0s out-of-phase loops) starting immediately as each letter arrives (~51.20s–51.62s).
-- **Perpetual glow**: `glow` keyframes 4 s alternate starting at 56.2 s on `.title`.
-- After title starts arriving, `<p class="more-info">více informací brzy</p>` fades in via `fogReveal` 7 s starting at 49.5 s, positioned `clamp(6rem, 15vw, 11rem)` below the title.
+- **Cinematic multi-directional flurry arrival**: `letterArrive` keyframes (opacity 0 → 1 at 35%, `translate(var(--dx-from), var(--dy-from))` smoothly decelerating directly to `translate(0, 0)` with no overshoot jump, scale 0.92 → 1, easing `cubic-bezier(0.16, 1, 0.3, 1)`) running for a deliberate 2.20 s per letter. Letters launch in a non-linear shuffled order ("napřeskáčku": n, e, l, R, o, v, c, e) with a tight 0.06 s stagger (launching 31.00 s to 31.42 s, landing ~33.20 s to 33.62 s) without any blur.
+- **Gentle wind sway**: Inner `<g class="sway">` elements run `letterSway` keyframes (starting from `(0, 0) 0°` to ensure a seamless handoff without any position jump, oscillating rotation -1.4° to +1.5° and translation ±1.0px to ±1.8px on 4.2s–6.0s out-of-phase loops) starting immediately as each letter arrives (~33.20s–33.62s).
+- **Perpetual glow**: `glow` keyframes 4 s alternate starting at 38.2 s on `.title`.
+- After title starts arriving, `<p class="more-info">více informací brzy</p>` fades in via `fogReveal` 6 s starting at 31.5 s, positioned `clamp(6rem, 15vw, 11rem)` below the title.
 - `aria-label="Revelcon"` on the `<h1>` keeps the title accessible to screen readers (the SVG itself is `role="img"`).
 - Under `prefers-reduced-motion: reduce`, `.title`, `.letter`, and `.sway` animations are disabled and all letters show immediately with `opacity: 1; transform: none;`.
 - To regenerate paths after editing `generate-logo.py`: `python3 generate-logo.py` (requires `fontTools`; reads `/tmp/opencode/stoke/Stoke.ttf`).
