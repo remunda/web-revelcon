@@ -216,7 +216,7 @@ body {
     Line 2: reveal 7.5s -> 13.5s, fade 13.5s -> 16.0s
     Line 3: reveal 15.0s -> 21.0s, fade 21.0s -> 23.5s
     Line 4: reveal 22.5s -> 28.5s, fade 28.5s -> 31.0s
-    Title: cinematic multi-directional arrival 31.0s -> 33.62s (8 letters, 2.2s flight, 0.06s shuffled stagger) + gentle breeze sway
+    Title: cinematic multi-directional arrival 31.0s -> 34.22s (8 letters, 2.8s flight, 0.06s shuffled stagger) + gentle breeze sway
     More-info: reveal starts at 31.5s, takes 6s
 
  
@@ -375,7 +375,6 @@ body {
 	width: min(96vw, 1500px);
 	aspect-ratio: 800 / 200;
 	user-select: none;
-	animation: glow 4s ease-in-out 38.2s infinite alternate;
 }
 
 .title-svg {
@@ -403,17 +402,6 @@ body {
 	animation: fogReveal 6s ease-out 31.5s both;
 	opacity: 0;
 	pointer-events: none;
-}
-
-@keyframes glow {
-	from {
-		filter: drop-shadow(0 0 6px rgba(245, 230, 168, 0.3))
-			drop-shadow(0 0 10px rgba(212, 168, 87, 0.2));
-	}
-	to {
-		filter: drop-shadow(0 0 14px rgba(245, 230, 168, 0.55))
-			drop-shadow(0 0 22px rgba(212, 168, 87, 0.35));
-	}
 }
 
 @media (prefers-reduced-motion: reduce) {
