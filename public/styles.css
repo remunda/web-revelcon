@@ -276,7 +276,7 @@ body {
 	transform-box: fill-box;
 	transform-origin: center;
 	opacity: 0;
-	animation: letterArrive 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+	animation: letterArrive 2.8s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .sway {
@@ -289,7 +289,7 @@ body {
 	animation-delay: 31.18s;
 	--dx-from: -380px;
 	--dy-from: 280px;
-	--sway-delay: 33.38s;
+	--sway-delay: 33.98s;
 	--sway-dur: 4.6s;
 	--sway-rot: 1.1deg;
 	--sway-x: 1.2px;
@@ -299,7 +299,7 @@ body {
 	animation-delay: 31.06s;
 	--dx-from: -260px;
 	--dy-from: -320px;
-	--sway-delay: 33.26s;
+	--sway-delay: 33.86s;
 	--sway-dur: 5.4s;
 	--sway-rot: -1.4deg;
 	--sway-x: -1.3px;
@@ -309,7 +309,7 @@ body {
 	animation-delay: 31.3s;
 	--dx-from: -60px;
 	--dy-from: 350px;
-	--sway-delay: 33.5s;
+	--sway-delay: 34.1s;
 	--sway-dur: 4.2s;
 	--sway-rot: 1.5deg;
 	--sway-x: 1.4px;
@@ -319,7 +319,7 @@ body {
 	animation-delay: 31.42s;
 	--dx-from: 240px;
 	--dy-from: -340px;
-	--sway-delay: 33.62s;
+	--sway-delay: 34.22s;
 	--sway-dur: 6s;
 	--sway-rot: -1.1deg;
 	--sway-x: -1px;
@@ -329,7 +329,7 @@ body {
 	animation-delay: 31.12s;
 	--dx-from: -310px;
 	--dy-from: 240px;
-	--sway-delay: 33.32s;
+		--sway-delay: 33.92s;
 	--sway-dur: 4.8s;
 	--sway-rot: 0.8deg;
 	--sway-x: 1.1px;
@@ -339,7 +339,7 @@ body {
 	animation-delay: 31.36s;
 	--dx-from: 40px;
 	--dy-from: -360px;
-	--sway-delay: 33.56s;
+	--sway-delay: 34.16s;
 	--sway-dur: 5.7s;
 	--sway-rot: -1.3deg;
 	--sway-x: -1.5px;
@@ -349,7 +349,7 @@ body {
 	animation-delay: 31.24s;
 	--dx-from: 340px;
 	--dy-from: 290px;
-	--sway-delay: 33.44s;
+	--sway-delay: 34.04s;
 	--sway-dur: 4.4s;
 	--sway-rot: 1.2deg;
 	--sway-x: 1.3px;
@@ -359,7 +359,7 @@ body {
 	animation-delay: 31s;
 	--dx-from: 450px;
 	--dy-from: -120px;
-	--sway-delay: 33.2s;
+	--sway-delay: 33.8s;
 	--sway-dur: 5.1s;
 	--sway-rot: -1deg;
 	--sway-x: -1.1px;
