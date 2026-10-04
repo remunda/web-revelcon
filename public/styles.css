@@ -53,17 +53,18 @@ button { font: inherit; }
 .hero-picture img { object-fit: cover; object-position: center; }
 .hero-content { position: relative; z-index: 2; padding-top: 9rem; padding-bottom: clamp(7rem, 13vh, 9rem); }
 .hero-kicker, .eyebrow { margin: 0 0 .4rem; color: var(--gold); font-size: .92rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
-.hero-kicker { color: #f7d782; text-shadow: 0 2px 8px #100b08; }
+.hero-kicker { color: #f7d782; font-size: clamp(1.1rem, 1.85vw, 1.35rem); letter-spacing: .15em; text-shadow: 0 2px 12px rgba(4,12,7,.92); }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { font-weight: 600; line-height: .94; text-wrap: balance; }
 h1 { max-width: 700px; margin-bottom: 1.1rem; font-size: clamp(4rem, 11vw, 8.5rem); letter-spacing: -.05em; text-shadow: 0 3px 18px rgba(0,0,0,.58); }
 h1 span { color: var(--gold-light); font-style: italic; }
 .hero-logo { width: min(63vw, 300px); max-width: none; margin: 0 0 clamp(.65rem, 2vw, 1.1rem); line-height: 0; filter: drop-shadow(0 5px 14px rgba(0,0,0,.7)); }
 .hero-logo img, .footer-logo { display: block; width: 100%; height: auto; }
-.hero-date { display: flex; align-items: center; gap: .65rem; margin-bottom: 1rem; color: #fff1c8; font-size: clamp(1.3rem, 2.4vw, 1.7rem); font-weight: 600; }
+.hero-date { display: flex; align-items: center; gap: .65rem; margin-bottom: 1rem; color: #fff1c8; font-size: clamp(1.3rem, 2.4vw, 1.7rem); font-weight: 600; text-shadow: 0 2px 10px rgba(4,12,7,.9); }
 .hero-date b { color: var(--gold-light); }
-.hero-copy { max-width: 37rem; margin-bottom: 1.7rem; font-size: clamp(1.25rem, 2.4vw, 1.6rem); text-shadow: 0 2px 8px #100b08; }
+.hero-copy { max-width: 37rem; margin-bottom: 1.7rem; font-size: clamp(1.25rem, 2.4vw, 1.6rem); text-shadow: 0 2px 10px rgba(4,12,7,.9); }
 .hero-actions { display: flex; align-items: center; gap: 1.3rem; flex-wrap: wrap; }
+.hero-actions .text-link { text-shadow: 0 2px 10px rgba(4,12,7,.9); }
 .button--gold { color: #17200e; background: linear-gradient(180deg, #ffe09a, #d58c24); box-shadow: 0 5px 0 #795014, 0 10px 22px rgba(0,0,0,.3); }
 .button--dark { color: #ffedba; background: var(--ink); box-shadow: 0 5px 0 #315b37; }
 .text-link { display: inline-flex; gap: .45rem; align-items: center; min-height: 44px; color: inherit; font-weight: 700; text-underline-offset: .3em; }
