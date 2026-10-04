@@ -49,7 +49,7 @@ If the application uses Durable Objects or Workflows, refer to the relevant best
 
 > **MAINTENANCE RULE FOR AI AGENTS**: Whenever you add, remove, change, or break a feature in this site, you MUST also update this section to match. Keep the structure (numbered features, sub-bullets, file pointers) and replace any changed details. Do not delete features the user asked for — only update, add, or annotate. If a feature is removed, mark it `(removed YYYY-MM-DD)` and move it to the bottom under "Deprecated Features" so history is preserved.
 
-This is a single-page, scrollable, mobile-first event site for **Revelcon** (Kouzelnická akademie Oslavany, **22 May 2027**). It is a static site under `public/`, deployed by Cloudflare Workers (`wrangler.jsonc` → `assets.directory: "./public"`). Event copy and the published programme derive from `drive/REVELCON/docs/web revelcon.docx`; the site does not invent prices, contacts, sale URLs, or social URLs.
+This is a single-page, scrollable, mobile-first event site for **Revelcon** at **Zámek Oslavany** on **22 May 2027**. It is a static site under `public/`, deployed by Cloudflare Workers (`wrangler.jsonc` → `assets.directory: "./public"`). Event copy and the published programme derive from `drive/REVELCON/docs/web revelcon.docx`; the site does not invent prices, contacts, sale URLs, or social URLs.
 
 ### File map
 
@@ -62,40 +62,41 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** (Kou
 | `public/revelcon-hero-portrait.jpeg` | Approved portrait hero visual, copied from `drive/REVELCON/` for static delivery |
 | `public/revelcon-logo-bw.jpeg` | Optimised 1700 × 622 local raster of the approved black/white Revelcon logo, retained as the local source for the final transparent raster |
 | `public/revelcon-logo-gold.png` | Tightly cropped transparent 1336 × 397 white-gold PNG generated from the approved BW raster in Chromium canvas processing; it has real alpha rather than an SVG mask, so the hero/footer wordmark has no rectangular source background or substantial transparent edge padding |
-| `public/revelcon-dark-parchment.jpeg` | Optimised 1088 × 1200 crop of only the safe dark parchment portion of the supplied composite texture; it excludes the white/checkerboard area and tiles behind site sections |
+| `public/revelcon-dark-parchment.jpeg` | Optimised 1088 × 1200 crop of the safe dark parchment portion of the supplied composite texture, tinted and tiled in the active deep-green content treatment |
 | `public/revelcon-logo.svg` | Legacy wordmark asset retained in public but no longer used on the event page |
 | `wrangler.jsonc` | Workers config: targets `new-web-revelcon`, serves `./public` as static assets, provides fork-guarded PR previews, and deploys production from `main` |
 
 ### Features
 
 #### 1. Scrollable event structure
-- The page has a full visual hero followed by Vítejte, Program, Magické aktivity, Úniková RPG hra, Vstupenky a poukazy, Praktické informace and Kontakt sections, then a footer.
-- The welcome copy uses the approved “lost letter” hook and one-day student experience: wands, first spells, potions, magical creatures, broom flying, music, show, cinema, quiz, literary competition, activities and the RPG game.
-- The approved hero image is served through a semantic `<picture>`: portrait on screens through 768px and landscape above it. It is shown directly without a tint, gradient or textured overlay; the image is decorative (`alt=""`), while the event name, date and place are real text.
+- The page has a full visual hero followed by Vítejte, Program, Magické aktivity, Úniková RPG hra, Vstupenky a poukazy, Praktické informace, FAQ and Kontakt sections, then a footer. The welcome section includes an in-page visitor guide, “Na co se těšit”.
+- The welcome heading is “Kouzelnická akademie Oslavany otvírá své brány” and its single paragraph is the approved Revelcon copy about a one-day connection between the known world and the world of magic. It does not retain the former lost-letter copy.
+- The “Na co se těšit” guide links only to real page content: Program, Vstupenky, Aktivity pro děti, Úniková hra, Hůlky, Hudební vystoupení, Kouzelnická show, Kvíz, Literární soutěž, Království sov, Filmová promítání, Praktické informace, Kostýmy, Občerstvení and FAQ. Activity cards and practical-information entries provide the relevant fragment targets; FAQ contains only answers supported by already published details.
+- The approved hero image is served through a semantic `<picture>`: portrait on screens through 768px and landscape above it. It is shown directly without a tint, gradient or textured overlay; the image is decorative (`alt=""`), while the Revelcon name, subtitle, date and Zámek Oslavany venue are real text.
 - Hero image sources are copied locally to `public/`; the design screenshots and unapproved alternative icon sheet are not used as page assets.
 
 #### 2. Navigation and interaction
-- Header and mobile dialog each contain the six primary links: Úvod/Vítejte, Program, Magické aktivity, Praktické informace, Vstupenky a poukazy and Kontakt. Small decorative gate/owl, scroll/hourglass, book/lecturer, compass, seal/ticket and quill symbols are `aria-hidden`; the RPG game is an additional in-page link.
+- Header and mobile dialog each contain the six primary links: Úvod/Vítejte, Program, Na co se těšit, Praktické informace, Vstupenky a poukazy and Kontakt. Small decorative symbols are `aria-hidden`; the RPG game remains an additional in-page link in the mobile dialog.
 - The accessible mobile `<dialog>` menu is progressively enhanced by `main.js`: it opens from a real button, returns focus to that button on close, closes on Escape through the native dialog, and closes after a menu link is chosen.
 - A skip link goes to `#obsah`. All navigation and tickets calls-to-action are real anchors, including the labelled hero down-arrow that links to Vítejte, so reading and linking work without JavaScript.
 - On mobile, an IntersectionObserver shows a safe-area-aware sticky “Vstupenky & poukazy” link only after the hero has been left. The regular ticket section remains available without JavaScript.
 - The former small header logo is intentionally absent. The header aligns its six desktop navigation links at the right, while the mobile menu button remains in the same safe area.
 
 #### 3. Visual language and typography
-- `styles.css` defines a dark forest-green parchment/ink palette drawn toward the hero artwork, with yellow-orange amber reserved for calls to action, headings, symbols and fine ornamental borders. The local cropped parchment texture is tinted, blended and tiled across the content sections, while the hero keeps the approved imagery unobscured and transitions directly into the content.
-- The hero and footer use `revelcon-logo-gold.png`, a tightly cropped transparent white/gold raster generated from the approved BW logo. On desktop, the hero wordmark is capped at 260px wide (`min(23vw, 260px)`), roughly half the prior visible wordmark width; mobile retains the larger `min(63vw, 300px)` presentation. The header contains no logo.
-- Cards and programme panels use layered deep-green grounds, thin amber borders, an inset ornamental line and high-contrast amber headings. Existing Unicode marks are temporarily presented as consistent small decorative medallions and remain `aria-hidden`; they are not a final icon delivery.
+- The hero and footer use `revelcon-logo-gold.png`, a tightly cropped transparent white/gold raster generated from the approved BW logo. The hero presents Revelcon as the brand and places the subtitle “Odhal svět kouzel” directly under its wordmark; it uses “Zámek Oslavany” as the venue, not “Kouzelnická akademie Oslavany” as a brand subtitle. On desktop, the hero wordmark is capped at 260px wide (`min(23vw, 260px)`); mobile retains the larger `min(63vw, 300px)` presentation. The header contains no logo.
+- `styles.css` defines a dark forest-green parchment/ink palette drawn toward the hero artwork, with yellow-orange amber reserved for calls to action, headings, symbols and fine ornamental borders. The local cropped parchment texture is tinted, blended and tiled across content sections, while the hero keeps the approved imagery unobscured and transitions directly into the content. The rejected #6 colour treatment is not included.
+- Cards, programme panels, the visitor guide and FAQ use layered deep-green grounds, thin amber borders, inset ornamental lines and high-contrast amber headings. The responsive visitor guide uses clear, keyboard-accessible text chips. Existing Unicode marks are decorative and `aria-hidden`; they are not a final icon delivery.
 - Cormorant Garamond supplies readable serif copy and display headings; Marck Script is reserved for a single ornamental seal.
 - No background music, canvas animation, pointer trail, star field or long intro sequence remains.
 
 #### 4. Responsive and accessible behaviour
-- Layout is mobile-first: navigation and activity cards are one column on phones, two columns on tablet, and three columns at desktop widths. The programme becomes two readable time/event panels on larger screens and one panel column on phones; its times use tabular numerals and do not rely on horizontal table scrolling. Hero uses the portrait image on phones and landscape on desktop; on first mobile view it prioritises the unobscured artwork, wordmark, date and bottom-centred scroll cue, while the desktop-only hero copy and ticket/programme calls-to-action remain available through the navigation and their linked sections.
+- Layout is mobile-first: navigation and activity cards are one column on phones, two columns on tablet, and three columns at desktop widths; visitor-guide links wrap into touch-sized chips. The programme becomes two readable time/event panels on larger screens and one panel column on phones; its times use tabular numerals and do not rely on horizontal table scrolling. Hero uses the portrait image on phones and landscape on desktop; on first mobile view it prioritises the unobscured artwork, wordmark, subtitle, date, venue and bottom-centred scroll cue, while the desktop-only hero copy and ticket/programme calls-to-action remain available through navigation and their linked sections.
 - Links and menu buttons meet a 44px minimum target; keyboard focus is visibly gold; headings and landmark structure remain semantic.
 - `prefers-reduced-motion: reduce` disables smooth scrolling and decorative CSS transitions/animations.
 - `viewport-fit=cover` plus safe-area padding protects header, dialog, and mobile sticky ticket link around phone cut-outs.
 
 #### 5. Content status
-- The working event date is `2027-05-22`, at Kouzelnická akademie Oslavany.
+- The working event date is `2027-05-22`, at Zámek Oslavany (the area is the Zámecký park Oslavany).
 - Published programme includes Main Stage (opening, Šeklin, Fookin’ guns, quiz, SUKUBA and 5 Leaf Clover) and Area (stalls, RPG game, children’s activities, cinema, owls, micromagic and Quad Ball), with the document’s times.
 - Ticket copy covers wave presale, limited on-site availability, age bands, family entry, wand vouchers, team RPG vouchers and mailed gift invitations without displaying prices or a sale URL.
 - Practical information lists Zámecký park Oslavany, opening hours, direct Brno bus, free parking, voluntary costumes and the stated food/drink offer. Contact details and social links remain deliberately unpublished.
