@@ -71,25 +71,25 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** (Kou
 #### 1. Scrollable event structure
 - The page has a full visual hero followed by Vítejte, Program, Magické aktivity, Úniková RPG hra, Vstupenky a poukazy, Praktické informace and Kontakt sections, then a footer.
 - The welcome copy uses the approved “lost letter” hook and one-day student experience: wands, first spells, potions, magical creatures, broom flying, music, show, cinema, quiz, literary competition, activities and the RPG game.
-- The approved hero image is served through a semantic `<picture>`: portrait on screens through 768px and landscape above it. The hero image is decorative (`alt=""`); event name, date and place are real text.
+- The approved hero image is served through a semantic `<picture>`: portrait on screens through 768px and landscape above it. It is shown directly without a tint, gradient or textured overlay; the image is decorative (`alt=""`), while the event name, date and place are real text.
 - Hero image sources are copied locally to `public/`; the design screenshots and unapproved alternative icon sheet are not used as page assets.
 
 #### 2. Navigation and interaction
 - Header and mobile dialog each contain the six primary links: Úvod/Vítejte, Program, Magické aktivity, Praktické informace, Vstupenky a poukazy and Kontakt. Small decorative gate/owl, scroll/hourglass, book/lecturer, compass, seal/ticket and quill symbols are `aria-hidden`; the RPG game is an additional in-page link.
 - The accessible mobile `<dialog>` menu is progressively enhanced by `main.js`: it opens from a real button, returns focus to that button on close, closes on Escape through the native dialog, and closes after a menu link is chosen.
-- A skip link goes to `#obsah`. All navigation and tickets calls-to-action are real anchors, so reading and linking work without JavaScript.
+- A skip link goes to `#obsah`. All navigation and tickets calls-to-action are real anchors, including the labelled hero down-arrow that links to Vítejte, so reading and linking work without JavaScript.
 - On mobile, an IntersectionObserver shows a safe-area-aware sticky “Vstupenky & poukazy” link only after the hero has been left. The regular ticket section remains available without JavaScript.
 - The former small header logo is intentionally absent. The header aligns its six desktop navigation links at the right, while the mobile menu button remains in the same safe area.
 
 #### 3. Visual language and typography
-- `styles.css` defines a dark amber parchment/ink palette. The local cropped parchment texture is blended and tiled across the page; the hero ends with an organic, textured torn-paper edge into the content rather than exposing any unsafe part of the original composite texture.
+- `styles.css` defines a dark amber parchment/ink palette. The local cropped parchment texture is blended and tiled across the content sections, while the hero keeps the approved imagery unobscured and transitions directly into the content.
 - The hero and footer use `revelcon-logo-gold.png`, a tightly cropped transparent white/gold raster generated from the approved BW logo. On desktop, the hero wordmark is capped at 260px wide (`min(23vw, 260px)`), roughly half the prior visible wordmark width; mobile retains the larger `min(63vw, 300px)` presentation. The header contains no logo.
 - Cards and programme panels use dark brown/ink grounds, thin gold borders, an inset ornamental line and high-contrast gold headings. Existing Unicode marks are temporarily presented as consistent small decorative medallions and remain `aria-hidden`; they are not a final icon delivery.
 - Cormorant Garamond supplies readable serif copy and display headings; Marck Script is reserved for a single ornamental seal.
 - No background music, canvas animation, pointer trail, star field or long intro sequence remains.
 
 #### 4. Responsive and accessible behaviour
-- Layout is mobile-first: navigation and activity cards are one column on phones, two columns on tablet, and three columns at desktop widths. The programme becomes two readable time/event panels on larger screens and one panel column on phones; its times use tabular numerals and do not rely on horizontal table scrolling. Hero uses the portrait image on phones and landscape on desktop.
+- Layout is mobile-first: navigation and activity cards are one column on phones, two columns on tablet, and three columns at desktop widths. The programme becomes two readable time/event panels on larger screens and one panel column on phones; its times use tabular numerals and do not rely on horizontal table scrolling. Hero uses the portrait image on phones and landscape on desktop; on first mobile view it prioritises the unobscured artwork, wordmark, date and bottom-centred scroll cue, while the desktop-only hero copy and ticket/programme calls-to-action remain available through the navigation and their linked sections.
 - Links and menu buttons meet a 44px minimum target; keyboard focus is visibly gold; headings and landmark structure remain semantic.
 - `prefers-reduced-motion: reduce` disables smooth scrolling and decorative CSS transitions/animations.
 - `viewport-fit=cover` plus safe-area padding protects header, dialog, and mobile sticky ticket link around phone cut-outs.
