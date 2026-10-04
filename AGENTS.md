@@ -45,11 +45,11 @@ If the application uses Durable Objects or Workflows, refer to the relevant best
 
 ---
 
-# Current Site Behavior — RevelCON Event Site
+# Current Site Behavior — Revelcon Event Site
 
 > **MAINTENANCE RULE FOR AI AGENTS**: Whenever you add, remove, change, or break a feature in this site, you MUST also update this section to match. Keep the structure (numbered features, sub-bullets, file pointers) and replace any changed details. Do not delete features the user asked for — only update, add, or annotate. If a feature is removed, mark it `(removed YYYY-MM-DD)` and move it to the bottom under "Deprecated Features" so history is preserved.
 
-This is a single-page, scrollable, mobile-first event site for **RevelCON** (Kouzelnická akademie Oslavany, **22 May 2027**). It is a static site under `public/`, deployed by Cloudflare Workers (`wrangler.jsonc` → `assets.directory: "./public"`). Event copy and the published programme derive from `drive/REVELCON/docs/web revelcon.docx`; the site does not invent prices, contacts, sale URLs, or social URLs.
+This is a single-page, scrollable, mobile-first event site for **Revelcon** (Kouzelnická akademie Oslavany, **22 May 2027**). It is a static site under `public/`, deployed by Cloudflare Workers (`wrangler.jsonc` → `assets.directory: "./public"`). Event copy and the published programme derive from `drive/REVELCON/docs/web revelcon.docx`; the site does not invent prices, contacts, sale URLs, or social URLs.
 
 ### File map
 
@@ -60,7 +60,7 @@ This is a single-page, scrollable, mobile-first event site for **RevelCON** (Kou
 | `public/main.js` | Progressive-enhancement mobile dialog controls and sticky mobile ticket link |
 | `public/revelcon-hero-landscape.jpeg` | Approved landscape hero visual, copied from `drive/REVELCON/` for static delivery |
 | `public/revelcon-hero-portrait.jpeg` | Approved portrait hero visual, copied from `drive/REVELCON/` for static delivery |
-| `public/revelcon-logo.svg` | Existing RevelCON wordmark used in header and footer |
+| `public/revelcon-logo.svg` | Existing Revelcon wordmark used in header and footer |
 | `wrangler.jsonc` | Workers config: serves `./public` as static assets |
 
 ### Features
