@@ -56,7 +56,7 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** (Kou
 | File | Role |
 |---|---|
 | `public/index.html` | Semantic page structure, hero picture, navigation, event sections and accessible links |
-| `public/styles.css` | Warm parchment/ink visual system, responsive layout, focus states and reduced-motion rules |
+| `public/styles.css` | Deep green parchment/ink visual system with restrained amber accents, responsive layout, focus states and reduced-motion rules |
 | `public/main.js` | Progressive-enhancement mobile dialog controls and sticky mobile ticket link |
 | `public/revelcon-hero-landscape.jpeg` | Approved landscape hero visual, copied from `drive/REVELCON/` for static delivery |
 | `public/revelcon-hero-portrait.jpeg` | Approved portrait hero visual, copied from `drive/REVELCON/` for static delivery |
@@ -82,9 +82,9 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** (Kou
 - The former small header logo is intentionally absent. The header aligns its six desktop navigation links at the right, while the mobile menu button remains in the same safe area.
 
 #### 3. Visual language and typography
-- `styles.css` defines a dark amber parchment/ink palette. The local cropped parchment texture is blended and tiled across the content sections, while the hero keeps the approved imagery unobscured and transitions directly into the content.
+- `styles.css` defines a dark forest-green parchment/ink palette drawn toward the hero artwork, with yellow-orange amber reserved for calls to action, headings, symbols and fine ornamental borders. The local cropped parchment texture is tinted, blended and tiled across the content sections, while the hero keeps the approved imagery unobscured and transitions directly into the content.
 - The hero and footer use `revelcon-logo-gold.png`, a tightly cropped transparent white/gold raster generated from the approved BW logo. On desktop, the hero wordmark is capped at 260px wide (`min(23vw, 260px)`), roughly half the prior visible wordmark width; mobile retains the larger `min(63vw, 300px)` presentation. The header contains no logo.
-- Cards and programme panels use dark brown/ink grounds, thin gold borders, an inset ornamental line and high-contrast gold headings. Existing Unicode marks are temporarily presented as consistent small decorative medallions and remain `aria-hidden`; they are not a final icon delivery.
+- Cards and programme panels use layered deep-green grounds, thin amber borders, an inset ornamental line and high-contrast amber headings. Existing Unicode marks are temporarily presented as consistent small decorative medallions and remain `aria-hidden`; they are not a final icon delivery.
 - Cormorant Garamond supplies readable serif copy and display headings; Marck Script is reserved for a single ornamental seal.
 - No background music, canvas animation, pointer trail, star field or long intro sequence remains.
 
