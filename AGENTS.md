@@ -56,13 +56,13 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** (Kou
 | File | Role |
 |---|---|
 | `public/index.html` | Semantic page structure, hero picture, navigation, event sections and accessible links |
-| `public/styles.css` | Warm parchment/ink visual system, responsive layout, focus states and reduced-motion rules |
+| `public/styles.css` | Dark night-sky visual system, responsive layout, focus states and reduced-motion rules |
 | `public/main.js` | Progressive-enhancement mobile dialog controls and sticky mobile ticket link |
 | `public/revelcon-hero-landscape.jpeg` | Approved landscape hero visual, copied from `drive/REVELCON/` for static delivery |
 | `public/revelcon-hero-portrait.jpeg` | Approved portrait hero visual, copied from `drive/REVELCON/` for static delivery |
 | `public/revelcon-logo-bw.jpeg` | Optimised 1700 × 622 local raster of the approved black/white Revelcon logo, retained as the local source for the final transparent raster |
 | `public/revelcon-logo-gold.png` | Tightly cropped transparent 1336 × 397 white-gold PNG generated from the approved BW raster in Chromium canvas processing; it has real alpha rather than an SVG mask, so the hero/footer wordmark has no rectangular source background or substantial transparent edge padding |
-| `public/revelcon-dark-parchment.jpeg` | Optimised 1088 × 1200 crop of only the safe dark parchment portion of the supplied composite texture; it excludes the white/checkerboard area and tiles behind site sections |
+| `public/revelcon-dark-parchment.jpeg` | Optimised 1088 × 1200 crop of the safe dark parchment portion of the supplied composite texture; retained as a source asset but no longer used by the active background styles |
 | `public/revelcon-logo.svg` | Legacy wordmark asset retained in public but no longer used on the event page |
 | `wrangler.jsonc` | Workers config: targets `new-web-revelcon`, serves `./public` as static assets, provides fork-guarded PR previews, and deploys production from `main` |
 
@@ -82,9 +82,9 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** (Kou
 - The former small header logo is intentionally absent. The header aligns its six desktop navigation links at the right, while the mobile menu button remains in the same safe area.
 
 #### 3. Visual language and typography
-- `styles.css` defines a dark amber parchment/ink palette. The local cropped parchment texture is blended and tiled across the content sections, while the hero keeps the approved imagery unobscured and transitions directly into the content.
+- `styles.css` uses dark night-sky backgrounds across the page and its panels: inky navy, cobalt and restrained violet gradients replace the tiled parchment treatment. The approved hero imagery remains completely unobscured.
 - The hero and footer use `revelcon-logo-gold.png`, a tightly cropped transparent white/gold raster generated from the approved BW logo. On desktop, the hero wordmark is capped at 260px wide (`min(23vw, 260px)`), roughly half the prior visible wordmark width; mobile retains the larger `min(63vw, 300px)` presentation. The header contains no logo.
-- Cards and programme panels use dark brown/ink grounds, thin gold borders, an inset ornamental line and high-contrast gold headings. Existing Unicode marks are temporarily presented as consistent small decorative medallions and remain `aria-hidden`; they are not a final icon delivery.
+- Cards and programme panels use navy/indigo grounds with the existing thin gold borders, inset ornamental line and high-contrast gold headings. Existing Unicode marks are temporarily presented as consistent small decorative medallions and remain `aria-hidden`; they are not a final icon delivery.
 - Cormorant Garamond supplies readable serif copy and display headings; Marck Script is reserved for a single ornamental seal.
 - No background music, canvas animation, pointer trail, star field or long intro sequence remains.
 
