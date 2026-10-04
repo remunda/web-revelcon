@@ -3,6 +3,8 @@ name: Cloudflare preview
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -11,7 +13,7 @@ permissions:
 jobs:
   preview:
     # Never expose Cloudflare credentials to code supplied by a fork.
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     concurrency:
       group: cloudflare-preview-pr-${{ github.event.pull_request.number }}
@@ -51,7 +53,7 @@ jobs:
           prefix="pr-${PR_NUMBER}-"
           # `alias-worker-name` is one DNS label. Keep room for the Worker
           # name configured in wrangler.jsonc as well as the separating dash.
-          worker_name="web-revelcon"
+          worker_name="new-web-revelcon"
           max_alias_length=$((63 - ${#worker_name} - 1))
           max_branch_length=$((max_alias_length - ${#prefix} - ${#branch_hash} - 1))
           branch_slug="${branch_slug:0:max_branch_length}"
@@ -129,3 +131,26 @@ jobs:
                 }),
               ),
             );
+
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: Deploy production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out pushed revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Deploy to Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bunx wrangler deploy

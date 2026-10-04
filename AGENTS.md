@@ -64,7 +64,7 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** (Kou
 | `public/revelcon-logo-gold.png` | Tightly cropped transparent 1336 × 397 white-gold PNG generated from the approved BW raster in Chromium canvas processing; it has real alpha rather than an SVG mask, so the hero/footer wordmark has no rectangular source background or substantial transparent edge padding |
 | `public/revelcon-dark-parchment.jpeg` | Optimised 1088 × 1200 crop of only the safe dark parchment portion of the supplied composite texture; it excludes the white/checkerboard area and tiles behind site sections |
 | `public/revelcon-logo.svg` | Legacy wordmark asset retained in public but no longer used on the event page |
-| `wrangler.jsonc` | Workers config: serves `./public` as static assets |
+| `wrangler.jsonc` | Workers config: targets `new-web-revelcon`, serves `./public` as static assets, provides fork-guarded PR previews, and deploys production from `main` |
 
 ### Features
 

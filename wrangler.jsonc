@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "web-revelcon",
+	"name": "new-web-revelcon",
 	"compatibility_date": "2026-08-20",
 	"assets": {
 		// The path to the directory containing the `index.html` file to be served at `/`
