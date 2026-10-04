@@ -1,75 +1,342 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="cs">
-	<head>
-		<!-- Google tag (gtag.js) -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=G-HNRP2RQYVF"></script>
-		<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
-		gtag('js', new Date());
 
-		gtag('config', 'G-HNRP2RQYVF');
-		</script>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-		<meta name="theme-color" content="#05060f" />
-		<meta name="description" content="RevelCON" />
-		<title>Revelcon</title>
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link
-			rel="stylesheet"
-			href="https://fonts.googleapis.com/css2?family=Italianno&display=swap"
-		/>
-		<link rel="stylesheet" href="/styles.css" />
-	</head>
-	<body>
-		<div class="sky" aria-hidden="true"></div>
-		<canvas id="stars" aria-hidden="true"></canvas>
-		<main class="center">
-			<div class="sequence" aria-live="polite">
-				<p class="line">Taky od&nbsp;jedenáctých narozenin čekáte na svůj dopis ze&nbsp;školy čar&nbsp;a&nbsp;kouzel?</p>
-				<p class="line">Možná se&nbsp;ztratil po&nbsp;cestě, nebo vůbec neměl přijít….</p>
-				<p class="line">Tentokrát ale žádný dopis nepotřebujete</p>
-				<p class="line">Kouzelnická akademie Oslavany otevře své brány 22.5.2027</p>
-				<h1 class="title" aria-label="Revelcon">
-					<svg
-						class="title-svg"
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 800 200"
-						preserveAspectRatio="xMidYMid meet"
-						role="img"
-					>
-						<defs>
-							<linearGradient id="titleGold" x1="0%" y1="0%" x2="0%" y2="100%">
-								<stop offset="0%" stop-color="#fff8dc" />
-								<stop offset="50%" stop-color="#f5e6a8" />
-								<stop offset="100%" stop-color="#a37a2c" />
-							</linearGradient>
-							<filter id="titleGlow" x="-10%" y="-10%" width="120%" height="120%">
-								<feGaussianBlur stdDeviation="0.8" result="blur" />
-								<feMerge>
-									<feMergeNode in="blur" />
-									<feMergeNode in="SourceGraphic" />
-								</feMerge>
-							</filter>
-						</defs>
-						<g filter="url(#titleGlow)" fill="url(#titleGold) #a37a2c">
-							<g class="letter"><g class="sway"><path transform="translate(149.80 135.00) scale(0.04883 -0.04883)" d="M668 83 732 89Q750 89 760.5 75.0Q771 61 771.0 49.5Q771 38 766.5 27.0Q762 16 751 7Q724 -15 680.5 -15.0Q637 -15 606.5 -12.5Q576 -10 549.0 -7.5Q522 -5 495.0 -2.5Q468 0 436.5 0.0Q405 0 378 -2L325 -8Q244 -15 207.5 -15.0Q171 -15 152.5 -8.5Q134 -2 123 7Q103 23 103.0 42.0Q103 61 113.5 75.0Q124 89 142 89L206 83Q274 83 298 137Q320 185 320 315V1232Q320 1366 301.0 1406.5Q282 1447 257.0 1462.0Q232 1477 192 1477L142 1471Q124 1471 113.5 1484.0Q103 1497 103.0 1510.0Q103 1523 107.5 1533.5Q112 1544 123 1553Q150 1575 194.0 1575.0Q238 1575 266.0 1573.0Q294 1571 320 1568Q379 1561 440.5 1561.0Q502 1561 560 1566Q851 1592 954.5 1592.0Q1058 1592 1161.5 1554.5Q1265 1517 1330 1456Q1455 1337 1455 1154Q1455 932 1294 807Q1149 695 921 695H905Q1001 640 1060 576Q1161 468 1226.0 357.5Q1291 247 1329.0 205.0Q1367 163 1400 140Q1456 102 1517 102L1574 115Q1603 113 1610 99Q1618 80 1618.0 62.0Q1618 44 1608.5 32.0Q1599 20 1580 10Q1501 -30 1332 -3Q1218 15 1132 92Q1044 169 966.5 292.0Q889 415 844.5 492.0Q800 569 775.0 601.5Q750 634 719 655Q658 696 554 696V315Q554 185 571.0 147.0Q588 109 610.0 96.0Q632 83 668 83ZM733 798 842 799Q1083 799 1170 966Q1199 1023 1199.0 1100.0Q1199 1177 1176.0 1240.0Q1153 1303 1102 1348Q995 1445 780 1445Q645 1445 609.5 1427.0Q574 1409 564.0 1386.5Q554 1364 554 1330V828Q622 798 733 798Z"/></g></g>
-							<g class="letter"><g class="sway"><path transform="translate(228.81 130.66) scale(0.04883 -0.04883)" d="M257 888Q423 1053 669 1053Q833 1053 956 968Q1045 907 1104 808Q1145 736 1145.0 716.5Q1145 697 1143.5 686.5Q1142 676 1137 666Q1126 642 1095 631Q840 538 528 464L353 422Q387 276 504 196Q607 126 747 126Q868 126 969 204Q1001 228 1019 254Q1050 300 1085 300Q1107 300 1123 264Q1127 255 1127 247Q1127 209 1088 158Q1019 67 911.0 21.5Q803 -24 679.5 -24.0Q556 -24 451.5 12.5Q347 49 269.0 118.5Q191 188 145.5 288.0Q100 388 100.0 504.0Q100 620 141.0 717.0Q182 814 257 888ZM339 548 624 622Q879 690 890 708Q893 714 893.0 731.5Q893 749 879.0 780.5Q865 812 836 839Q769 901 662 901Q557 901 464 841Q338 759 338 583V566Q338 557 339 548Z"/></g></g>
-							<g class="letter"><g class="sway"><path transform="translate(288.38 127.18) scale(0.04883 -0.04883)" d="M1363 925 1307 932Q1267 932 1237 898Q1182 839 1131 733L787 32Q757 -35 724.5 -35.0Q692 -35 659 23L200 823Q149 908 126.0 920.0Q103 932 84 932L27 925Q10 925 -0.5 939.0Q-11 953 -11.0 970.0Q-11 987 13.5 1008.0Q38 1029 89.0 1029.0Q140 1029 190.5 1021.0Q241 1013 297 1013L555 1029Q627 1029 648 986Q653 975 653.0 964.0Q653 953 643.5 939.0Q634 925 615 925L539 934Q459 934 459 884Q459 833 498 770Q554 666 615.5 568.0Q677 470 734 366Q758 324 775 324Q785 324 802 362L959 691Q1011 803 1016.0 836.0Q1021 869 1021 884Q1021 934 951 934L859 925Q841 925 831.0 939.0Q821 953 821.0 971.0Q821 989 845.0 1009.0Q869 1029 924.0 1029.0Q979 1029 1034.0 1021.0Q1089 1013 1136.5 1013.0Q1184 1013 1227.5 1021.0Q1271 1029 1313.5 1029.0Q1356 1029 1378.0 1008.0Q1400 987 1400.0 970.0Q1400 953 1389.5 939.0Q1379 925 1363 925Z"/></g></g>
-							<g class="letter"><g class="sway"><path transform="translate(355.08 125.25) scale(0.04883 -0.04883)" d="M257 888Q423 1053 669 1053Q833 1053 956 968Q1045 907 1104 808Q1145 736 1145.0 716.5Q1145 697 1143.5 686.5Q1142 676 1137 666Q1126 642 1095 631Q840 538 528 464L353 422Q387 276 504 196Q607 126 747 126Q868 126 969 204Q1001 228 1019 254Q1050 300 1085 300Q1107 300 1123 264Q1127 255 1127 247Q1127 209 1088 158Q1019 67 911.0 21.5Q803 -24 679.5 -24.0Q556 -24 451.5 12.5Q347 49 269.0 118.5Q191 188 145.5 288.0Q100 388 100.0 504.0Q100 620 141.0 717.0Q182 814 257 888ZM339 548 624 622Q879 690 890 708Q893 714 893.0 731.5Q893 749 879.0 780.5Q865 812 836 839Q769 901 662 901Q557 901 464 841Q338 759 338 583V566Q338 557 339 548Z"/></g></g>
-							<g class="letter"><g class="sway"><path transform="translate(414.65 125.25) scale(0.04883 -0.04883)" d="M634 82 686 89Q703 89 713.0 75.0Q723 61 723.0 49.0Q723 37 718.5 26.5Q714 16 703 7Q667 -23 574 -12L481 -2Q457 0 409.5 0.0Q362 0 305.0 -7.5Q248 -15 215.0 -15.0Q182 -15 161.5 -8.5Q141 -2 130 7Q110 22 110.0 42.0Q110 62 120.5 75.5Q131 89 148 89L201 82Q260 82 280 136Q300 186 300 342V1348Q300 1520 275.5 1561.0Q251 1602 218.0 1615.0Q185 1628 148 1632Q74 1638 74 1682Q74 1696 89.5 1712.0Q105 1728 132.0 1728.0Q159 1728 179 1726L220 1722Q285 1716 320 1716L473 1730Q511 1730 521 1713Q537 1683 537 1600V342Q537 182 555.0 141.0Q573 100 591.0 91.0Q609 82 634 82Z"/></g></g>
-							<g class="letter"><g class="sway"><path transform="translate(453.08 127.18) scale(0.04883 -0.04883)" d="M1104 739Q1104 709 1075 709Q1049 709 1008.5 760.0Q968 811 928.0 837.5Q888 864 845 878Q778 901 688.5 901.0Q599 901 542.5 881.5Q486 862 442 822Q348 734 348 574Q348 371 462 245Q570 126 728 126Q903 126 990 249Q1016 287 1041.5 289.5Q1067 292 1082.0 277.0Q1097 262 1097.0 240.0Q1097 218 1078.0 185.5Q1059 153 1026.0 122.5Q993 92 950.0 65.5Q907 39 859 19Q655 -66 440 16Q230 96 143 296Q100 396 100.0 489.5Q100 583 120.0 649.0Q140 715 176.5 775.0Q213 835 265.5 886.0Q318 937 383 974Q522 1053 686 1053Q802 1053 881 1016Q896 1009 909.0 1009.0Q922 1009 939.0 1016.0Q956 1023 974 1031L1006 1046Q1022 1053 1033 1053Q1066 1053 1066.0 1013.5Q1066 974 1066.5 943.5Q1067 913 1070 886Q1076 832 1094 784Q1104 757 1104 739Z"/></g></g>
-							<g class="letter"><g class="sway"><path transform="translate(510.40 130.66) scale(0.04883 -0.04883)" d="M100 538Q100 624 144.5 722.0Q189 820 266 894Q433 1053 673 1053Q951 1053 1104 887Q1241 738 1241 532Q1241 289 1096 137Q943 -24 677 -24Q293 -24 154 266Q100 379 100 538ZM370 730Q349 673 349.0 579.0Q349 485 380.5 398.0Q412 311 464 251Q573 127 723 127Q907 127 968 288Q989 343 989.0 444.0Q989 545 956.0 635.5Q923 726 870 785Q766 901 617 901Q432 901 370 730Z"/></g></g>
-							<g class="letter"><g class="sway"><path transform="translate(575.88 135.00) scale(0.04883 -0.04883)" d="M632 -15 416 0Q352 0 290.5 -7.5Q229 -15 202.5 -15.0Q176 -15 156.5 -8.5Q137 -2 126 7Q107 23 107.0 42.5Q107 62 118.0 75.5Q129 89 145 89L195 82Q251 82 275 137Q300 195 300 342V651Q300 818 256 878Q237 903 185.0 918.5Q133 934 113.5 943.5Q94 953 94.0 966.5Q94 980 97.0 989.0Q100 998 107 1006Q124 1025 159 1025L306 1013L457 1025Q500 1025 512 1010Q537 982 537 901V874Q703 1053 925 1053Q1178 1053 1251 853Q1277 782 1277 685V342Q1277 183 1295.5 141.5Q1314 100 1332.0 91.0Q1350 82 1374 82L1427 89Q1444 89 1453.5 75.0Q1463 61 1463.0 49.0Q1463 37 1459.0 26.5Q1455 16 1444 7Q1408 -22 1316 -12Q1201 0 1167 0L956 -15Q870 -15 854 26Q850 37 850.0 49.5Q850 62 860.5 75.5Q871 89 889 89L942 82Q1001 82 1021.0 135.5Q1041 189 1041 342V607Q1041 790 938 856Q898 882 844.5 882.0Q791 882 749.0 868.5Q707 855 669 832Q594 785 537 711V342Q537 176 557.5 136.5Q578 97 599.0 89.5Q620 82 649 82L699 89Q716 89 726.5 75.5Q737 62 737 46Q737 -15 632 -15Z"/></g></g>
-						</g>
-					</svg>
-				</h1>
-				<p class="more-info">více informací brzy</p>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<meta name="theme-color" content="#22150f">
+	<meta name="description" content="Revelcon — Kouzelnická akademie Oslavany, 22. května 2027.">
+	<title>Revelcon 2027 | Kouzelnická akademie Oslavany</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Marck+Script&display=swap"
+		rel="stylesheet">
+	<link rel="preload" as="image" href="/revelcon-hero-landscape.jpeg" media="(min-width: 769px)">
+	<link rel="preload" as="image" href="/revelcon-hero-portrait.jpeg" media="(max-width: 768px)">
+	<link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+	<a class="skip-link" href="#obsah">Přeskočit na obsah</a>
+
+	<header class="site-header" data-header>
+		<nav class="desktop-nav" aria-label="Hlavní navigace">
+			<a href="#vitejte"><span class="nav-icon" aria-hidden="true">♜</span>Úvod</a>
+			<a href="#program"><span class="nav-icon" aria-hidden="true">⌛</span>Program</a>
+			<a href="#aktivity"><span class="nav-icon" aria-hidden="true">✦</span>Magické aktivity</a>
+			<a href="#prakticke-informace"><span class="nav-icon" aria-hidden="true">⌖</span>Praktické informace</a>
+			<a class="nav-ticket" href="#vstupenky"><span class="nav-icon" aria-hidden="true">✉</span>Vstupenky &amp;
+				poukazy</a>
+			<a href="#kontakt"><span class="nav-icon" aria-hidden="true">✒</span>Kontakt</a>
+		</nav>
+		<button class="menu-toggle" type="button" aria-label="Otevřít navigaci" aria-controls="mobile-menu"
+			aria-expanded="false" data-menu-open><span aria-hidden="true"></span><span aria-hidden="true"></span><span
+				aria-hidden="true"></span></button>
+	</header>
+
+	<dialog class="mobile-menu" id="mobile-menu" aria-labelledby="menu-title" data-menu>
+		<div class="menu-panel">
+			<div class="menu-topline">
+				<p class="eyebrow" id="menu-title">Navigace</p><button class="menu-close" type="button"
+					aria-label="Zavřít navigaci" data-menu-close>×</button>
 			</div>
-		</main>
-		<script type="module" src="/music.js"></script>
-		<script defer src="/main.js"></script>
-	</body>
+			<nav aria-label="Mobilní navigace">
+				<a href="#vitejte"><span aria-hidden="true">♜</span> Úvod / Vítejte</a>
+				<a href="#program"><span aria-hidden="true">⌛</span> Program</a>
+				<a href="#aktivity"><span aria-hidden="true">✦</span> Magické aktivity</a>
+				<a href="#prakticke-informace"><span aria-hidden="true">⌖</span> Praktické informace</a>
+				<a href="#vstupenky"><span aria-hidden="true">✉</span> Vstupenky &amp; poukazy</a>
+				<a href="#kontakt"><span aria-hidden="true">✒</span> Kontakt</a>
+			</nav>
+			<a class="menu-sub-link" href="#unikova-hra"><span aria-hidden="true">♟</span> Prozkoumat Únikovou RPG
+				hru</a>
+		</div>
+	</dialog>
+
+	<main id="obsah">
+		<section class="hero" id="uvod" aria-labelledby="hero-title">
+			<picture class="hero-picture">
+				<source media="(max-width: 768px)" srcset="/revelcon-hero-portrait.jpeg"><img
+					src="/revelcon-hero-landscape.jpeg" width="3168" height="1344" alt="" fetchpriority="high">
+			</picture>
+			<div class="hero-shade" aria-hidden="true"></div>
+			<div class="hero-content content-width">
+				<p class="hero-kicker">Kouzelnická akademie Oslavany</p>
+				<h1 class="hero-logo" id="hero-title"><img src="/revelcon-logo-gold.png" width="1700" height="622" alt="" fetchpriority="high"><span class="sr-only">Revelcon</span></h1>
+				<p class="hero-date"><time datetime="2027-05-22">22. května 2027</time><b aria-hidden="true">·</b>
+					Oslavany</p>
+				<p class="hero-copy">Na jediný den se můžete stát studentem akademie.</p>
+				<div class="hero-actions"><a class="button button--gold" href="#vstupenky">Informace ke vstupenkám <span
+							aria-hidden="true">→</span></a><a class="text-link" href="#program">Prozkoumat program <span
+							aria-hidden="true">↓</span></a></div>
+			</div>
+			<a class="scroll-cue" href="#vitejte" aria-label="Přejít na úvod obsahu"><span
+					aria-hidden="true">↓</span></a>
+		</section>
+
+		<section class="welcome parchment-section" id="vitejte" aria-labelledby="vitejte-title">
+			<div class="parchment-edge" aria-hidden="true"></div>
+			<div class="content-width welcome-layout">
+				<div class="section-heading">
+					<p class="eyebrow">Vítejte na Revelconu</p>
+					<h2 id="vitejte-title">Čekáte od jedenáctých narozenin na svůj dopis?</h2>
+				</div>
+				<div class="welcome-copy">
+					<p class="lead">Možná se jen ztratil. Možná nikdy neměl přijít… Tentokrát ale žádný dopis
+						nepotřebujete.</p>
+					<p>Na jediný den se můžete stát studentem akademie, získat vlastní kouzelnickou hůlku, naučit se
+						první kouzla nebo v učebně lektvarů namíchat třeba nápoj lásky. Dozvíte se zajímavosti o
+						kouzelných tvorech a zjistíte, jestli máte talent na létání na koštěti.</p>
+					<p>Čekají na vás hudební vystoupení, kouzelnická show, filmová promítání, kvíz, literární soutěž,
+						kreativní aktivity i originální roleplay úniková hra. Ať je vám osm nebo osmdesát, brány
+						akademie se otevírají <strong>22. května 2027</strong>. Stačí jimi projít.</p>
+				</div>
+			</div>
+			<nav class="path-grid content-width" aria-label="Cesty akademií">
+				<a class="path-card path-card--light" href="#program"><span class="card-mark"
+						aria-hidden="true">⌛</span><span>Program</span><small>Hlavní pódium i dění v areálu</small></a>
+				<a class="path-card path-card--ink" href="#aktivity"><span class="card-mark"
+						aria-hidden="true">✦</span><span>Magické aktivity</span><small>Hůlky, sovy, hry a
+						další</small></a>
+				<a class="path-card path-card--light" href="#prakticke-informace"><span class="card-mark"
+						aria-hidden="true">⌖</span><span>Praktické informace</span><small>Cesta, kostým i
+						občerstvení</small></a>
+				<a class="path-card path-card--ink" href="#vstupenky"><span class="card-mark"
+						aria-hidden="true">✉</span><span>Vstupenky &amp; poukazy</span><small>Vstupy, hůlky a
+						dárky</small></a>
+				<a class="path-card path-card--light" href="#kontakt"><span class="card-mark"
+						aria-hidden="true">✒</span><span>Kontakt</span><small>Kam přibudou odpovědi</small></a>
+				<a class="path-card path-card--ink" href="#unikova-hra"><span class="card-mark"
+						aria-hidden="true">♟</span><span>Úniková RPG hra</span><small>Výprava pro týmy 2–6</small></a>
+			</nav>
+		</section>
+
+		<section class="section section--ink program-section" id="program" aria-labelledby="program-title">
+			<div class="content-width">
+				<div class="section-heading section-heading--light centered">
+					<p class="eyebrow">Program</p>
+					<h2 id="program-title">Jeden den. Dvě jeviště kouzelnické akademie.</h2>
+					<p class="lead">Harmonogram je rozdělený mezi Hlavní pódium a dění v areálu.</p>
+				</div>
+				<div class="schedule-grid">
+					<section class="schedule-panel" aria-labelledby="podium-title">
+						<div class="schedule-title"><span aria-hidden="true">⌛</span>
+							<h3 id="podium-title">Hlavní pódium</h3>
+						</div>
+						<ol class="schedule-list">
+							<li><time datetime="10:00">10:00–10:30</time><span>Zahájení festivalu</span></li>
+							<li><time datetime="11:30">11:30–12:00</time><span>Kouzelnická show kouzelníka
+									Šeklina</span></li>
+							<li><time datetime="13:30">13:30–14:30</time><span>Kapela Fookin’ guns</span></li>
+							<li><time datetime="15:30">15:30–16:00</time><span>Kouzelnická show kouzelníka
+									Šeklina</span></li>
+							<li><time datetime="17:30">17:30–18:30</time><span>Kouzelnický kvíz</span></li>
+							<li><time datetime="19:00">19:00–20:00</time><span>Kapela SUKUBA</span></li>
+							<li><time datetime="20:30">20:30–22:00</time><span>Kapela 5 Leaf Clover</span></li>
+						</ol>
+					</section>
+					<section class="schedule-panel" aria-labelledby="areal-title">
+						<div class="schedule-title"><span aria-hidden="true">♜</span>
+							<h3 id="areal-title">Areál</h3>
+						</div>
+						<ol class="schedule-list">
+							<li><time datetime="10:00">10:00–22:00</time><span>Stánky s občerstvením a zbožím</span>
+							</li>
+							<li><time datetime="10:00">10:00–17:00</time><span>Úniková RPG hra pro dospělé</span></li>
+							<li><time datetime="10:00">10:00–17:00</time><span>Aktivity pro děti</span></li>
+							<li><time datetime="10:00">10:00–20:00</time><span>Kino — promítání fan filmů ze světa
+									HP</span></li>
+							<li><time datetime="12:30">12:30–13:00</time><span>Království sov — přednáška o chovu
+									sov</span></li>
+							<li><time datetime="13:00">13:00–14:00</time><span>Mikromagie mezi návštěvníky
+									festivalu</span></li>
+							<li><time datetime="15:00">15:00–15:30</time><span>Zápas Quad Ball — míčová hra na
+									košťatech</span></li>
+							<li><time datetime="16:30">16:30–17:00</time><span>Království sov — přednáška o chovu
+									sov</span></li>
+						</ol>
+					</section>
+				</div>
+			</div>
+		</section>
+
+		<section class="section activities-section" id="aktivity" aria-labelledby="aktivity-title">
+			<div class="content-width">
+				<div class="section-heading centered">
+					<p class="eyebrow">Magické aktivity</p>
+					<h2 id="aktivity-title">Vydejte se za vlastním dobrodružstvím.</h2>
+					<p class="lead">Od první hůlky až po hudbu večer: vyberte si, do čeho se pustíte.</p>
+				</div>
+				<div class="activity-grid activity-grid--expanded">
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">✦</span>
+						<h3>Dětské aktivity a průkaz</h3>
+						<p>Děti s dětskou vstupenkou z předprodeje dostanou studentský průkaz akademie. Ten otevírá
+							připravené aktivity: malování dračího vejce, hůlku a základní zaklínadla, lektvary a další.
+							Na místě bude nabídka těchto vstupenek omezená.</p>
+					</article>
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">ϟ</span>
+						<h3>Hůlky mistra hůlkaře</h3>
+						<p>V krámku mistra hůlkaře můžete zjistit, která hůlka si vás vybere. Dětské vstupenky z
+							předprodeje obsahují poukaz na jednu dřevěnou ručně vyřezanou hůlku; návštěvníci od 12 let
+							si mohou poukaz přidat ke vstupence v předprodeji.</p>
+					</article>
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">♧</span>
+						<h3>Dračí hlídka</h3>
+						<p>Vyzkoušejte si deskovou hru na hrdiny s průvodcem. Zápis probíhá na místě.</p>
+					</article>
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">?</span>
+						<h3>Kouzelnický kvíz</h3>
+						<p>Poměřte síly s kouzelníky i mudly. Účast je v ceně vstupenky; tým o 2–8 osobách je potřeba
+							přihlásit včas. Kvíz začíná v 17:30 u hlavního pódia a bez mobilních telefonů.</p>
+					</article>
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">◉</span>
+						<h3>Království sov</h3>
+						<p>Chovná stanice přiveze sovy, dravé ptáky a papoušky a představí péči, krmení i výběr první
+							sovy. Přednášky jsou ve 12:30 a 16:30.</p>
+					</article>
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">⌁</span>
+						<h3>Létání na koštěti a Quad Ball</h3>
+						<p>Po celý den si můžete zkusit obratnost při tréninku kouzelnického sportu. Zápas Quad Ballu
+							sledujte v 15:00.</p>
+					</article>
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">◌</span>
+						<h3>Kino</h3>
+						<p>Od 10:00 do 20:00 promítáme fanouškovské filmy ze světa Harryho Pottera v originálním znění s
+							českými titulky, se svolením jejich autorů.</p>
+					</article>
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">✧</span>
+						<h3>Kouzelník Šeklin</h3>
+						<p>Dvakrát za den můžete zkusit rozpoznat, co je kouzlo a co iluze. Mezi představeními může
+							Šeklin zavítat i mezi návštěvníky s mikromagií z bezprostřední blízkosti.</p>
+					</article>
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">✎</span>
+						<h3>Literární soutěž</h3>
+						<p>Zapojit se může každý. Pravidla budou zveřejněna při zahájení Revelconu a výherce vybere
+							odborná porota z učitelského sboru akademie.</p>
+					</article>
+					<article class="activity-card"><span class="activity-icon" aria-hidden="true">♫</span>
+						<h3>Hudební vystoupení</h3>
+						<p>Na hlavním pódiu zahrají tři kapely: Fookin’ guns, SUKUBA a 5 Leaf Clover.</p>
+					</article>
+				</div>
+			</div>
+		</section>
+
+		<section class="section escape-section" id="unikova-hra" aria-labelledby="unikova-title">
+			<div class="content-width escape-layout">
+				<div class="escape-seal" aria-hidden="true"><span>R</span></div>
+				<div class="section-heading">
+					<p class="eyebrow">Úniková RPG hra</p>
+					<h2 id="unikova-title">Vstupte do příběhu, který může změnit osud akademie.</h2>
+					<p class="lead">Příběhová hra s prvky roleplay pro týmy 2–6 kouzelníků a čarodějek.</p>
+					<p>Odhalujte tajemství, prolamujte zastírací kouzla a komunikujte s živými postavami kouzelnického
+						světa. Hra zabere přibližně 2–3 hodiny, během ní se ale můžete volně pohybovat areálem, dát si
+						občerstvení nebo se zapojit do jiné části programu.</p>
+					<ul class="escape-facts">
+						<li>týmy o 2–6 osobách</li>
+						<li>omezené časové sloty</li>
+						<li>vstupné na festival se kupuje zvlášť</li>
+						<li>voucher je určený pro celý tým</li>
+					</ul>
+				</div>
+			</div>
+		</section>
+
+		<section class="section ticket-section" id="vstupenky" aria-labelledby="vstupenky-title">
+			<div class="content-width ticket-panel">
+				<div>
+					<p class="eyebrow">Vstupenky a poukazy</p>
+					<h2 id="vstupenky-title">Připravte si vlastní pozvánku do akademie.</h2>
+					<p class="lead">Předprodej poběží ve vlnách; s počtem prodaných vstupenek cena poroste. Na místě
+						bude jen omezený počet vstupenek a při naplnění kapacity v předprodeji nemusí být dostupné
+						vůbec.</p>
+				</div>
+				<div class="ticket-details">
+					<section>
+						<h3>Vstupenky</h3>
+						<ul>
+							<li>Dospělí: od 12 let.</li>
+							<li>Děti: od 3 do 11,99 let, podle věku v den festivalu.</li>
+							<li>Děti do 3 let: vstup zdarma bez speciálních aktivit; program pro ně lze přidat jako
+								„Aktivity bez vstupu“.</li>
+							<li>Rodinná vstupenka: celá skupina vstupuje do areálu společně.</li>
+						</ul>
+					</section>
+					<section>
+						<h3>Poukazy a dárky</h3>
+						<ul>
+							<li>Hůlkový poukaz lze uplatnit v krámku mistra hůlkaře.</li>
+							<li>Exit-game voucher je pro tým 2–6 osob; vstup na festival je nutné koupit zvlášť.</li>
+							<li>Dárkové pozvánky a poukazy se zasílají na určenou adresu.</li>
+						</ul>
+					</section>
+				</div>
+				<p class="ticket-status" id="vstupenky-status"><span aria-hidden="true">✦</span> Ceny ani prodejní odkaz
+					zatím nejsou zveřejněné.</p>
+			</div>
+		</section>
+
+		<section class="section practical-section" id="prakticke-informace" aria-labelledby="prakticke-title">
+			<div class="content-width">
+				<div class="section-heading centered">
+					<p class="eyebrow">Praktické informace</p>
+					<h2 id="prakticke-title">Až budete vyrážet.</h2>
+					<p class="lead">Pár jistot pro cestu do akademie.</p>
+				</div>
+				<dl class="info-list info-list--expanded">
+					<div>
+						<dt>Místo</dt>
+						<dd>Areál zámeckého parku Oslavany</dd>
+					</div>
+					<div>
+						<dt>Otevřeno</dt>
+						<dd>9:30–22:30<br><small>Konec programu ve 22:00</small></dd>
+					</div>
+					<div>
+						<dt>Doprava</dt>
+						<dd>Pravidelná přímá autobusová linka z Brna.</dd>
+					</div>
+					<div>
+						<dt>Parkování</dt>
+						<dd>Bezplatně před areálem zámeckého parku a v okolních ulicích. Parkujte prosím bezpečně a
+							podle předpisů.</dd>
+					</div>
+					<div>
+						<dt>Kostýmy</dt>
+						<dd>Nejsou povinné. Dorazit můžete i v mudlovském oblečení; kouzelnický oděv a doplňky ale
+							pomohou dotvořit atmosféru.</dd>
+					</div>
+					<div>
+						<dt>Občerstvení</dt>
+						<dd>Hospoda u Zelného draka, kouzelnická kavárna, foodtrucky, chmelový ležák i kouzelnické
+							limonády.</dd>
+					</div>
+				</dl>
+			</div>
+		</section>
+
+		<section class="section contact-section" id="kontakt" aria-labelledby="kontakt-title">
+			<div class="content-width contact-layout">
+				<div class="contact-quill" aria-hidden="true">✒</div>
+				<div class="section-heading">
+					<p class="eyebrow">Kontakt</p>
+					<h2 id="kontakt-title">Něco vám chybí?</h2>
+					<p class="lead">Kontaktní údaje na pořadatele zveřejníme, jakmile budou připravené pro veřejnost.
+					</p>
+					<p class="contact-placeholder">Kontakty budou zveřejněny zde.</p>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="site-footer"><img class="footer-logo" src="/revelcon-logo-gold.png" width="1700" height="622" alt="Revelcon" loading="lazy">
+		<p>Kouzelnická akademie Oslavany · <time datetime="2027">2027</time></p><a href="#uvod">Zpět na začátek <span
+				aria-hidden="true">↑</span></a>
+	</footer>
+	<a class="sticky-ticket" href="#vstupenky" data-sticky-ticket>Vstupenky &amp; poukazy <span
+			aria-hidden="true">→</span></a>
+	<script defer src="/main.js"></script>
+</body>
+
 </html>

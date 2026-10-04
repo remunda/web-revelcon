@@ -1,0 +1,131 @@
+name: Cloudflare preview
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    # Never expose Cloudflare credentials to code supplied by a fork.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    concurrency:
+      group: cloudflare-preview-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Check out pull request head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - id: preview
+        name: Upload non-production Worker version
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          NO_COLOR: "1"
+        run: |
+          set -euo pipefail
+
+          # Keep the alias DNS-label-safe and deterministic while retaining
+          # enough branch identity to avoid collisions after truncation.
+          branch_slug="$(printf '%s' "$PR_HEAD_REF" \
+            | tr '[:upper:]' '[:lower:]' \
+            | tr -cs 'a-z0-9' '-' \
+            | sed -E 's/^-+//; s/-+$//; s/-+/-/g')"
+          branch_slug="${branch_slug:-branch}"
+          branch_hash="$(printf '%s' "$PR_HEAD_REF" | sha256sum | cut -c1-8)"
+          prefix="pr-${PR_NUMBER}-"
+          # `alias-worker-name` is one DNS label. Keep room for the Worker
+          # name configured in wrangler.jsonc as well as the separating dash.
+          worker_name="web-revelcon"
+          max_alias_length=$((63 - ${#worker_name} - 1))
+          max_branch_length=$((max_alias_length - ${#prefix} - ${#branch_hash} - 1))
+          branch_slug="${branch_slug:0:max_branch_length}"
+          preview_alias="${prefix}${branch_slug}-${branch_hash}"
+
+          echo "Using preview alias: $preview_alias"
+          bunx wrangler versions upload --preview-alias "$preview_alias" 2>&1 \
+            | tee "$RUNNER_TEMP/wrangler-preview.log"
+
+          preview_url="$(awk '/^Version Preview Alias URL: https:\/\// { url = $5 } END { print url }' \
+            "$RUNNER_TEMP/wrangler-preview.log")"
+          case "$preview_url" in
+            https://*.workers.dev|https://*.workerd.dev) ;;
+            *)
+              echo "Could not find a Cloudflare preview-alias URL in Wrangler output." >&2
+              exit 1
+              ;;
+          esac
+
+          {
+            echo "alias=$preview_alias"
+            echo "preview_url=$preview_url"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create or update preview comment
+        uses: actions/github-script@v7
+        env:
+          PREVIEW_ALIAS: ${{ steps.preview.outputs.alias }}
+          PREVIEW_URL: ${{ steps.preview.outputs.preview_url }}
+        with:
+          script: |
+            const marker = "<!-- revelcon-cloudflare-preview -->";
+            const body = [
+              marker,
+              "## Cloudflare preview",
+              "",
+              `[Open preview](${process.env.PREVIEW_URL})`,
+              "",
+              `Preview alias: \`${process.env.PREVIEW_ALIAS}\``,
+              "",
+              "_This uploads a Worker version only; it does not deploy production traffic._",
+              "",
+              "_Repository secrets required: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`._",
+            ].join("\n");
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+            });
+            const previewComments = comments.filter(
+              (comment) =>
+                comment.user?.login === "github-actions[bot]" &&
+                comment.body?.includes(marker),
+            );
+
+            if (previewComments.length === 0) {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              return;
+            }
+
+            await github.rest.issues.updateComment({
+              owner,
+              repo,
+              comment_id: previewComments[0].id,
+              body,
+            });
+            await Promise.all(
+              previewComments.slice(1).map((comment) =>
+                github.rest.issues.deleteComment({
+                  owner,
+                  repo,
+                  comment_id: comment.id,
+                }),
+              ),
+            );
