@@ -3,8 +3,6 @@
   const openMenu = document.querySelector("[data-menu-open]");
   const closeMenu = document.querySelector("[data-menu-close]");
   const menuLinks = menu?.querySelectorAll("a");
-  const stickyTicket = document.querySelector("[data-sticky-ticket]");
-  const hero = document.querySelector(".hero");
   let previouslyFocused;
   let shouldRestoreFocus = true;
 
@@ -38,11 +36,4 @@
     if (event.target === menu) closeMobileMenu();
   });
   menuLinks?.forEach((link) => link.addEventListener("click", () => closeMobileMenu(false)));
-
-  if (stickyTicket && hero && "IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(([entry]) => {
-      stickyTicket.classList.toggle("is-visible", !entry.isIntersecting);
-    }, { threshold: 0.08 });
-    observer.observe(hero);
-  }
 })();
