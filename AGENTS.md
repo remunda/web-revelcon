@@ -49,7 +49,7 @@ If the application uses Durable Objects or Workflows, refer to the relevant best
 
 > **MAINTENANCE RULE FOR AI AGENTS**: Whenever you add, remove, change, or break a feature in this site, you MUST also update this section to match. Keep the structure (numbered features, sub-bullets, file pointers) and replace any changed details. Do not delete features the user asked for — only update, add, or annotate. If a feature is removed, mark it `(removed YYYY-MM-DD)` and move it to the bottom under "Deprecated Features" so history is preserved.
 
-This is a single-page, scrollable, mobile-first event site for **RevelCON** (Kouzelnická akademie Oslavany, working date **22 May 2027**). It is a static site under `public/`, deployed by Cloudflare Workers (`wrangler.jsonc` → `assets.directory: "./public"`). The site intentionally does not invent prices, programme times, contacts, sale URLs, or social URLs: those areas state clearly that details will be published later.
+This is a single-page, scrollable, mobile-first event site for **RevelCON** (Kouzelnická akademie Oslavany, **22 May 2027**). It is a static site under `public/`, deployed by Cloudflare Workers (`wrangler.jsonc` → `assets.directory: "./public"`). Event copy and the published programme derive from `drive/REVELCON/docs/web revelcon.docx`; the site does not invent prices, contacts, sale URLs, or social URLs.
 
 ### File map
 
@@ -66,12 +66,14 @@ This is a single-page, scrollable, mobile-first event site for **RevelCON** (Kou
 ### Features
 
 #### 1. Scrollable event structure
-- The page has a full visual hero followed by Vítejte, Program, Magické aktivity, Úniková hra, Vstupenky, Praktické informace and Kontakt sections, then a footer.
+- The page has a full visual hero followed by Vítejte, Program, Magické aktivity, Úniková RPG hra, Vstupenky a poukazy, Praktické informace and Kontakt sections, then a footer.
+- The welcome copy uses the approved “lost letter” hook and one-day student experience: wands, first spells, potions, magical creatures, broom flying, music, show, cinema, quiz, literary competition, activities and the RPG game.
 - The approved hero image is served through a semantic `<picture>`: portrait on screens through 768px and landscape above it. The hero image is decorative (`alt=""`); event name, date and place are real text.
 - Hero image sources are copied locally to `public/`; the design screenshots and unapproved alternative icon sheet are not used as page assets.
 
 #### 2. Navigation and interaction
-- Header has desktop navigation and an accessible mobile `<dialog>` menu. `main.js` opens it, returns focus to the triggering button on close, closes on Escape through the native dialog, and closes after a menu link is chosen.
+- Header and mobile dialog each contain the six primary links: Úvod/Vítejte, Program, Magické aktivity, Praktické informace, Vstupenky a poukazy and Kontakt. Small decorative gate/owl, scroll/hourglass, book/lecturer, compass, seal/ticket and quill symbols are `aria-hidden`; the RPG game is an additional in-page link.
+- The accessible mobile `<dialog>` menu is progressively enhanced by `main.js`: it opens from a real button, returns focus to that button on close, closes on Escape through the native dialog, and closes after a menu link is chosen.
 - A skip link goes to `#obsah`. All navigation and tickets calls-to-action are real anchors, so reading and linking work without JavaScript.
 - On mobile, an IntersectionObserver shows a safe-area-aware sticky “Vstupenky již brzy” link only after the hero has been left. The regular ticket section remains available without JavaScript.
 
@@ -81,14 +83,16 @@ This is a single-page, scrollable, mobile-first event site for **RevelCON** (Kou
 - No background music, canvas animation, pointer trail, star field or long intro sequence remains.
 
 #### 4. Responsive and accessible behaviour
-- Layout is mobile-first: navigation cards are one column on phones, two columns on tablet, and three columns at desktop widths. Hero uses the portrait image on phones and landscape on desktop.
+- Layout is mobile-first: navigation and activity cards are one column on phones, two columns on tablet, and three columns at desktop widths. The programme becomes two readable time/event panels on larger screens and one panel column on phones; its times use tabular numerals and do not rely on horizontal table scrolling. Hero uses the portrait image on phones and landscape on desktop.
 - Links and menu buttons meet a 44px minimum target; keyboard focus is visibly gold; headings and landmark structure remain semantic.
 - `prefers-reduced-motion: reduce` disables smooth scrolling and decorative CSS transitions/animations.
 - `viewport-fit=cover` plus safe-area padding protects header, dialog, and mobile sticky ticket link around phone cut-outs.
 
 #### 5. Content status
 - The working event date is `2027-05-22`, at Kouzelnická akademie Oslavany.
-- Programme schedule, detailed activities, ticket sale and voucher information, logistics, contact details and social links are explicitly marked as forthcoming rather than fabricated.
+- Published programme includes Main Stage (opening, Šeklin, Fookin’ guns, quiz, SUKUBA and 5 Leaf Clover) and Area (stalls, RPG game, children’s activities, cinema, owls, micromagic and Quad Ball), with the document’s times.
+- Ticket copy covers wave presale, limited on-site availability, age bands, family entry, wand vouchers, team RPG vouchers and mailed gift invitations without displaying prices or a sale URL.
+- Practical information lists Zámecký park Oslavany, opening hours, direct Brno bus, free parking, voluntary costumes and the stated food/drink offer. Contact details and social links remain deliberately unpublished.
 
 ### Deprecated Features
 
