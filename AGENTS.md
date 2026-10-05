@@ -55,8 +55,8 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** at *
 
 | File | Role |
 |---|---|
-| `public/index.html` | Semantic page structure, hero picture, navigation, event sections and accessible links |
-| `public/styles.css` | Deep green parchment/ink visual system with restrained amber accents, responsive layout, focus states and reduced-motion rules |
+| `public/index.html` | Semantic page structure, hero picture, primary navigation, themed topic index, event sections and accessible links |
+| `public/styles.css` | Deep green parchment/ink visual system with restrained amber accents, responsive topic index, focus states and reduced-motion rules |
 | `public/main.js` | Progressive-enhancement mobile dialog controls |
 | `public/revelcon-hero-landscape.jpeg` | Approved landscape hero visual, copied from `drive/REVELCON/` for static delivery |
 | `public/revelcon-hero-portrait.jpeg` | Approved portrait hero visual, copied from `drive/REVELCON/` for static delivery |
@@ -76,7 +76,8 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** at *
 - Hero image sources are copied locally to `public/`; the design screenshots and unapproved alternative icon sheet are not used as page assets.
 
 #### 2. Navigation and interaction
-- Header and mobile dialog each contain the five primary links: Úvod/Vítejte, Program, Na co se těšit, Praktické informace and Kontakt. “Na co se těšit” links directly to the activity-card section; small decorative symbols are `aria-hidden`, and the RPG game is an additional in-page link in the mobile dialog.
+- Header and mobile dialog each contain the five primary links: Úvod/Vítejte, Program, Na co se těšit, Praktické informace and Kontakt. “Na co se těšit” links directly to the activity-card section; small decorative symbols are `aria-hidden`. The mobile dialog also links to the topic index.
+- A three-part “Průvodce akademií” topic index follows Vítejte. It offers direct, visible links for Program, Vstupenky, Aktivity pro děti, Úniková hra, Hůlky, Hudební vystoupení, Kouzelnická show, Kvíz, Literární soutěž, Království sov, Filmová promítání, Praktické informace, Kostýmy, Občerstvení and FAQ. These are anchors to the published programme, existing content cards, practical-information entries and FAQ rather than newly invented content; Vstupenky leads to the existing ticket-availability FAQ.
 - The accessible mobile `<dialog>` menu is progressively enhanced by `main.js`: it opens from a real button, returns focus to that button on close, closes on Escape through the native dialog, and closes after a menu link is chosen.
 - A skip link goes to `#obsah`. All navigation and the remaining hero programme call-to-action are real anchors, including the labelled hero down-arrow that links to Vítejte, so reading and linking work without JavaScript.
 - The former small header logo is intentionally absent. The header aligns its five desktop navigation links at the right, while the mobile menu button remains in the same safe area.
@@ -90,6 +91,7 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** at *
 
 #### 4. Responsive and accessible behaviour
 - Layout is mobile-first: navigation and activity cards are one column on phones, two columns on tablet, and three columns at desktop widths. The programme becomes two readable time/event panels on larger screens and one panel column on phones; its times use tabular numerals and do not rely on horizontal table scrolling. Hero uses the portrait image on phones and landscape on desktop; on first mobile view it prioritises the unobscured artwork, wordmark, subtitle, date, venue and bottom-centred scroll cue, while the desktop-only hero copy and programme call-to-action remain available through the navigation and their linked sections.
+- The topic index is a three-group card layout on desktop, becomes two columns on tablet and a clear one-column list on phones. Its links have 44px minimum targets, remain plain anchors without JavaScript and sit behind a mobile-menu link for a compact way to find every topic.
 - Links and menu buttons meet a 44px minimum target; keyboard focus is visibly gold; headings and landmark structure remain semantic.
 - `prefers-reduced-motion: reduce` disables smooth scrolling and decorative CSS transitions/animations.
 - `viewport-fit=cover` plus safe-area padding protects the header and dialog around phone cut-outs.
