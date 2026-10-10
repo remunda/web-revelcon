@@ -77,6 +77,7 @@ This is a single-page, scrollable, mobile-first event site for **Revelcon** at *
 
 #### 2. Navigation and interaction
 - Header and mobile dialog each contain the five primary links: Úvod/Vítejte, Program, Na co se těšit, Praktické informace and Kontakt. “Na co se těšit” links directly to the activity-card section; small decorative symbols are `aria-hidden`, and the RPG game is an additional in-page link in the mobile dialog.
+- Directly below the hero, a labelled “Rozcestník” navigation presents all published destinations as grouped, real-anchor tabs: Program and Vstupenky; children’s activities, Úniková hra, Hůlky, Hudební vystoupení, Kouzelnická show, Kvíz, Literární soutěž, Království sov and Filmová promítání; plus Praktické informace, Kostýmy, Občerstvení and FAQ. Vstupenky points to the existing ticket-availability FAQ; the other tabs point to their corresponding section, activity card or practical-information item.
 - The accessible mobile `<dialog>` menu is progressively enhanced by `main.js`: it opens from a real button, returns focus to that button on close, closes on Escape through the native dialog, and closes after a menu link is chosen.
 - A skip link goes to `#obsah`. All navigation and the remaining hero programme call-to-action are real anchors, including the labelled hero down-arrow that links to Vítejte, so reading and linking work without JavaScript.
 - The former small header logo is intentionally absent. The header aligns its five desktop navigation links at the right, while the mobile menu button remains in the same safe area.
